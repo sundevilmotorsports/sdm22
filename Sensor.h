@@ -1,0 +1,1 @@
+// abstract Sensor class
