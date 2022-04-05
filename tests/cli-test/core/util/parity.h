@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2017 PJRC.COM, LLC.
+ * Copyright (c) 2016 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -28,33 +28,16 @@
  * SOFTWARE.
  */
 
-#include <Arduino.h>
+#ifndef _UTIL_PARITY_H_
+#define _UTIL_PARITY_H_
 
-#define USING_MAKEFILE 1
-
-extern "C" int main(void)
+static inline uint8_t parity_even_bit(uint8_t x) __attribute__((pure, always_inline, unused));
+static inline uint8_t parity_even_bit(uint8_t x)
 {
-#ifdef USING_MAKEFILE
-
-	// To use Teensy 4.0 without Arduino, simply put your code here.
-	// For example:
-
-	pinMode(13, OUTPUT);
-	while (1) {
-		digitalWriteFast(13, HIGH);
-		delay(500);
-		digitalWriteFast(13, LOW);
-		delay(500);
-	}
-
-
-#else
-	// Arduino's main() function just calls setup() and loop()....
-	setup();
-	while (1) {
-		loop();
-		yield();
-	}
-#endif
+	x ^= x >> 1;
+	x ^= x >> 2;
+	x ^= x >> 4;
+	return x & 1;
 }
 
+#endif

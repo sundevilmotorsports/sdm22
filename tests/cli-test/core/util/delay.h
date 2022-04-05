@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2017 PJRC.COM, LLC.
+ * Copyright (c) 2016 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -28,33 +28,10 @@
  * SOFTWARE.
  */
 
-#include <Arduino.h>
-
-#define USING_MAKEFILE 1
-
-extern "C" int main(void)
-{
-#ifdef USING_MAKEFILE
-
-	// To use Teensy 4.0 without Arduino, simply put your code here.
-	// For example:
-
-	pinMode(13, OUTPUT);
-	while (1) {
-		digitalWriteFast(13, HIGH);
-		delay(500);
-		digitalWriteFast(13, LOW);
-		delay(500);
-	}
-
-
-#else
-	// Arduino's main() function just calls setup() and loop()....
-	setup();
-	while (1) {
-		loop();
-		yield();
-	}
+#ifndef _delay_us
+#define _delay_us(n) delayMicroseconds(n)
 #endif
-}
 
+#ifndef _delay_ms
+#define _delay_ms(n) delay(n)
+#endif

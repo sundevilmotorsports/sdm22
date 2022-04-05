@@ -29,7 +29,7 @@
 
 # Use these lines for Teensy 4.0
 MCU = IMXRT1062
-MCU_LD = imxrt1062.ld
+MCU_LD = core/imxrt1062.ld
 MCU_DEF = ARDUINO_TEENSY40
 
 # Use these lines for Teensy 4.1
@@ -106,6 +106,15 @@ TOOLSPATH = $(abspath $(ARDUINOPATH)/hardware/tools)
 # path location for Arduino libraries (currently not used)
 LIBRARYPATH = $(abspath $(ARDUINOPATH)/libraries)
 
+# Path location for Teensy 4.x core
+COREPATH = core
+
+# directory to build in
+BUILDDIR = build
+
+# directory for source files
+SRCDIR = src
+
 # path location for the arm-none-eabi compiler
 COMPILERPATH = $(abspath $(ARDUINOPATH)/hardware/tools/arm/bin)
 
@@ -121,7 +130,7 @@ endif
 #************************************************************************
 
 # CPPFLAGS = compiler options for C and C++
-CPPFLAGS = -Wall -g -O2 $(CPUOPTIONS) -MMD $(OPTIONS) -I. -ffunction-sections -fdata-sections
+CPPFLAGS = -Wall -g -O2 $(CPUOPTIONS) -MMD $(OPTIONS) -ffunction-sections -fdata-sections -I$(SRCDIR) -I$(COREPATH)
 
 # compiler options for C++ only
 CXXFLAGS = -std=gnu++14 -felide-constructors -fno-exceptions -fpermissive -fno-rtti -Wno-error=narrowing
@@ -130,7 +139,7 @@ CXXFLAGS = -std=gnu++14 -felide-constructors -fno-exceptions -fpermissive -fno-r
 CFLAGS =
 
 # linker options
-LDFLAGS = -Os -Wl,--gc-sections,--relax $(SPECS) $(CPUOPTIONS) -T$(MCU_LD)
+LDFLAGS = -Os -Wl,--gc-sections,--relax $(SPECS) $(CPUOPTIONS) -T $(MCU_LD)
 
 # additional libraries to link
 LIBS = -larm_cortexM7lfsp_math -lm -lstdc++
@@ -144,10 +153,23 @@ SIZE = $(COMPILERPATH)/arm-none-eabi-size
 
 # automatically create lists of the sources and objects
 # TODO: this does not handle Arduino libraries yet...
-C_FILES := $(shell find -wholename *.c)
-CPP_FILES := $(shell find  -wholename *.cpp)
-OBJS := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o)
+C_FILES := $(wildcard $(SRCDIR)/*.c)
+CPP_FILES := $(wildcard $(SRCDIR)/*.cpp)
+TC_FILES := $(wildcard $(COREPATH)/*.c)
+TCPP_FILES := $(wildcard $(COREPATH)/*.cpp)
+SOURCES := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o) $(TC_FILES:.c=.o) $(TCPP_FILES:.cpp=.o)
+#OBJS := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o)
+OBJS := $(foreach $(SRCDIR), $(SOURCES), $(BUILDDIR)/$(src))
 
+$(BUILDDIR)/%.o: %.c
+	@echo -e "[CC]\t$<"
+	@mkdir -p "$(dir $@)"
+	@$(CC) $(CPPFLAGS) $(CFLAGS) -o "$@" -c "$<"
+
+$(BUILDDIR)/%.o: %.cpp
+	@echo -e "[CXX]\t$<"
+	@mkdir -p "$(dir $@)"
+	@$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o "$@" -c "$<"
 
 # the actual makefile rules (all .o files built by GNU make's default implicit rules)
 
@@ -168,4 +190,4 @@ endif
 -include $(OBJS:.o=.d)
 
 clean:
-	rm -f *.o *.d $(TARGET).elf $(TARGET).hex
+	rm -f $(BUILDDIR)/*/*.o $(BUILDDIR)/*/*.d $(TARGET).elf $(TARGET).hex

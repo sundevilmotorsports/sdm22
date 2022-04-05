@@ -29,32 +29,71 @@
  */
 
 #include <Arduino.h>
+#include "usb_desc.h"
 
-#define USING_MAKEFILE 1
+#if F_CPU >= 20000000
 
-extern "C" int main(void)
-{
-#ifdef USING_MAKEFILE
-
-	// To use Teensy 4.0 without Arduino, simply put your code here.
-	// For example:
-
-	pinMode(13, OUTPUT);
-	while (1) {
-		digitalWriteFast(13, HIGH);
-		delay(500);
-		digitalWriteFast(13, LOW);
-		delay(500);
-	}
-
-
-#else
-	// Arduino's main() function just calls setup() and loop()....
-	setup();
-	while (1) {
-		loop();
-		yield();
-	}
+#ifdef CDC_DATA_INTERFACE
+#ifdef CDC_STATUS_INTERFACE
+usb_serial_class Serial;
 #endif
-}
+#endif
+
+#ifdef CDC2_DATA_INTERFACE
+#ifdef CDC2_STATUS_INTERFACE
+usb_serial2_class SerialUSB1;
+#endif
+#endif
+
+#ifdef CDC3_DATA_INTERFACE
+#ifdef CDC3_STATUS_INTERFACE
+usb_serial3_class SerialUSB2;
+#endif
+#endif
+
+#ifdef MIDI_INTERFACE
+usb_midi_class usbMIDI;
+#endif
+
+#ifdef KEYBOARD_INTERFACE
+usb_keyboard_class Keyboard;
+#endif
+
+#ifdef MOUSE_INTERFACE
+usb_mouse_class Mouse;
+#endif
+
+#ifdef RAWHID_INTERFACE
+usb_rawhid_class RawHID;
+#endif
+
+#ifdef FLIGHTSIM_INTERFACE
+FlightSimClass FlightSim;
+#endif
+
+#ifdef SEREMU_INTERFACE
+usb_seremu_class Serial;
+#endif
+
+#ifdef JOYSTICK_INTERFACE
+usb_joystick_class Joystick;
+uint8_t usb_joystick_class::manual_mode = 0;
+#endif
+
+#ifdef USB_DISABLED
+usb_serial_class Serial;
+#endif
+
+
+#else // F_CPU < 20 MHz
+
+#if defined(USB_SERIAL) || defined(USB_SERIAL_HID)
+usb_serial_class Serial;
+#elif (USB_DISABLED)
+usb_serial_class Serial;
+#else
+usb_seremu_class Serial;
+#endif
+
+#endif // F_CPU
 

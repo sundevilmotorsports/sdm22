@@ -28,33 +28,39 @@
  * SOFTWARE.
  */
 
-#include <Arduino.h>
+#pragma once
 
-#define USING_MAKEFILE 1
+#include "usb_desc.h"
 
-extern "C" int main(void)
-{
-#ifdef USING_MAKEFILE
+#if defined(RAWHID_INTERFACE)
 
-	// To use Teensy 4.0 without Arduino, simply put your code here.
-	// For example:
+#include <inttypes.h>
 
-	pinMode(13, OUTPUT);
-	while (1) {
-		digitalWriteFast(13, HIGH);
-		delay(500);
-		digitalWriteFast(13, LOW);
-		delay(500);
-	}
-
-
-#else
-	// Arduino's main() function just calls setup() and loop()....
-	setup();
-	while (1) {
-		loop();
-		yield();
-	}
+// C language implementation
+#ifdef __cplusplus
+extern "C" {
 #endif
+void usb_rawhid_configure(void);
+int usb_rawhid_recv(void *buffer, uint32_t timeout);
+int usb_rawhid_available(void);
+int usb_rawhid_send(const void *buffer, uint32_t timeout);
+#ifdef __cplusplus
 }
+#endif
 
+
+// C++ interface
+#ifdef __cplusplus
+class usb_rawhid_class
+{
+public:
+	int available(void) {return usb_rawhid_available(); }
+	int recv(void *buffer, uint16_t timeout) { return usb_rawhid_recv(buffer, timeout); }
+	int send(const void *buffer, uint16_t timeout) { return usb_rawhid_send(buffer, timeout); }
+};
+
+extern usb_rawhid_class RawHID;
+
+#endif // __cplusplus
+
+#endif // RAWHID_INTERFACE

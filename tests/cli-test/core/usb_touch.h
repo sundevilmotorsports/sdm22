@@ -28,33 +28,47 @@
  * SOFTWARE.
  */
 
-#include <Arduino.h>
+#ifndef USBtouchscreen_h_
+#define USBtouchscreen_h_
 
-#define USING_MAKEFILE 1
+#include "usb_desc.h"
 
-extern "C" int main(void)
-{
-#ifdef USING_MAKEFILE
+#if defined(MULTITOUCH_INTERFACE)
 
-	// To use Teensy 4.0 without Arduino, simply put your code here.
-	// For example:
+#include <inttypes.h>
 
-	pinMode(13, OUTPUT);
-	while (1) {
-		digitalWriteFast(13, HIGH);
-		delay(500);
-		digitalWriteFast(13, LOW);
-		delay(500);
-	}
-
-
-#else
-	// Arduino's main() function just calls setup() and loop()....
-	setup();
-	while (1) {
-		loop();
-		yield();
-	}
+// C language implementation
+#ifdef __cplusplus
+extern "C" {
 #endif
+void usb_touchscreen_configure(void);
+void usb_touchscreen_press(uint8_t finger, uint32_t x, uint32_t y, uint32_t pressure);
+void usb_touchscreen_release(uint8_t finger);
+void usb_touchscreen_update_callback(void);
+extern volatile uint8_t usb_configuration;
+#ifdef __cplusplus
 }
+#endif
+
+// C++ interface
+#ifdef __cplusplus
+class usb_touchscreen_class
+{
+        public:
+        void begin(void) { }
+        void end(void) { }
+	void press(uint8_t finger, uint32_t x, uint32_t y, uint32_t pressure=128) {
+		usb_touchscreen_press(finger, x, y, pressure);
+	}
+	void release(uint8_t finger) {
+		usb_touchscreen_release(finger);
+	}
+};
+extern usb_touchscreen_class TouchscreenUSB;
+
+#endif // __cplusplus
+
+#endif // MULTITOUCH_INTERFACE
+
+#endif // USBtouchscreen_h_
 

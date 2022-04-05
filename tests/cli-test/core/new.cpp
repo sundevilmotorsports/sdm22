@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2017 PJRC.COM, LLC.
+ * Copyright (c) 2018 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -13,11 +13,6 @@
  * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows
- * selection among a list of target devices, then similar target
- * devices manufactured by PJRC.COM must be included in the list of
- * target devices and selectable in the same manner.
- *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -28,33 +23,35 @@
  * SOFTWARE.
  */
 
-#include <Arduino.h>
+#include <stdlib.h>
 
-#define USING_MAKEFILE 1
-
-extern "C" int main(void)
+void * operator new(size_t size)
 {
-#ifdef USING_MAKEFILE
+	return malloc(size);
+}
 
-	// To use Teensy 4.0 without Arduino, simply put your code here.
-	// For example:
+void * operator new[](size_t size)
+{
+	return malloc(size);
+}
 
-	pinMode(13, OUTPUT);
-	while (1) {
-		digitalWriteFast(13, HIGH);
-		delay(500);
-		digitalWriteFast(13, LOW);
-		delay(500);
-	}
+void operator delete(void * ptr)
+{
+	free(ptr);
+}
 
+void operator delete[](void * ptr)
+{
+	free(ptr);
+}
 
-#else
-	// Arduino's main() function just calls setup() and loop()....
-	setup();
-	while (1) {
-		loop();
-		yield();
-	}
-#endif
+void operator delete(void * ptr, size_t size)
+{
+	free(ptr);
+}
+
+void operator delete[](void * ptr, size_t size)
+{
+	free(ptr);
 }
 

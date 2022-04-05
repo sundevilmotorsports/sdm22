@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2017 PJRC.COM, LLC.
+ * Copyright (c) 2019 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -29,32 +29,40 @@
  */
 
 #include <Arduino.h>
+#include "HardwareSerial.h"
+#if defined(__IMXRT1062__) && defined(ARDUINO_TEENSY41)
 
-#define USING_MAKEFILE 1
-
-extern "C" int main(void)
-{
-#ifdef USING_MAKEFILE
-
-	// To use Teensy 4.0 without Arduino, simply put your code here.
-	// For example:
-
-	pinMode(13, OUTPUT);
-	while (1) {
-		digitalWriteFast(13, HIGH);
-		delay(500);
-		digitalWriteFast(13, LOW);
-		delay(500);
-	}
-
-
-#else
-	// Arduino's main() function just calls setup() and loop()....
-	setup();
-	while (1) {
-		loop();
-		yield();
-	}
+#ifndef SERIAL8_TX_BUFFER_SIZE
+#define SERIAL8_TX_BUFFER_SIZE     40 // number of outgoing bytes to buffer
 #endif
+#ifndef SERIAL8_RX_BUFFER_SIZE
+#define SERIAL8_RX_BUFFER_SIZE     64 // number of incoming bytes to buffer
+#endif
+#define IRQ_PRIORITY  64  // 0 = highest priority, 255 = lowest
+
+void IRQHandler_Serial8()
+{
+	Serial8.IRQHandler();
 }
 
+
+// Serial8
+static BUFTYPE tx_buffer8[SERIAL8_TX_BUFFER_SIZE];
+static BUFTYPE rx_buffer8[SERIAL8_RX_BUFFER_SIZE];
+uint8_t _serialEvent8_default __attribute__((weak)) PROGMEM = 0 ;
+
+static HardwareSerial::hardware_t UART5_Hardware = {
+	7, IRQ_LPUART5, &IRQHandler_Serial8, 
+	&serialEvent8, &_serialEvent8_default,
+	CCM_CCGR3, CCM_CCGR3_LPUART5(CCM_CCGR_ON),
+    {{34,1, &IOMUXC_LPUART5_RX_SELECT_INPUT, 1}, {48, 2, &IOMUXC_LPUART5_RX_SELECT_INPUT, 0}},
+    {{35,1, &IOMUXC_LPUART5_TX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
+
+	50, // CTS pin
+	2, //  CTS
+	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
+	XBARA1_OUT_LPUART5_TRG_INPUT
+};
+HardwareSerial Serial8(&IMXRT_LPUART5, &UART5_Hardware, tx_buffer8, SERIAL8_TX_BUFFER_SIZE,
+	rx_buffer8,  SERIAL8_RX_BUFFER_SIZE);
+#endif

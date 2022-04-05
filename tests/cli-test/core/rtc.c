@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2017 PJRC.COM, LLC.
+ * Copyright (c) 2019 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be
+ * 1. The above copyright notice and this permission notice shall be 
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows
+ * 2. If the Software is incorporated into a build system that allows 
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -28,33 +28,44 @@
  * SOFTWARE.
  */
 
-#include <Arduino.h>
+#include "imxrt.h"
+#include "debug/printf.h"
 
-#define USING_MAKEFILE 1
 
-extern "C" int main(void)
+unsigned long rtc_get(void)
 {
-#ifdef USING_MAKEFILE
-
-	// To use Teensy 4.0 without Arduino, simply put your code here.
-	// For example:
-
-	pinMode(13, OUTPUT);
+	uint32_t hi1 = SNVS_HPRTCMR;
+	uint32_t lo1 = SNVS_HPRTCLR;
 	while (1) {
-		digitalWriteFast(13, HIGH);
-		delay(500);
-		digitalWriteFast(13, LOW);
-		delay(500);
+		uint32_t hi2 = SNVS_HPRTCMR;
+		uint32_t lo2 = SNVS_HPRTCLR;
+		if (lo1 == lo2 && hi1 == hi2) {
+			return (hi2 << 17) | (lo2 >> 15);
+		}
+		hi1 = hi2;
+		lo1 = lo2;
 	}
+}
 
+void rtc_set(unsigned long t)
+{
+	// stop the RTC
+	SNVS_HPCR &= ~(SNVS_HPCR_RTC_EN | SNVS_HPCR_HP_TS);
+	while (SNVS_HPCR & SNVS_HPCR_RTC_EN); // wait
+	// stop the SRTC
+	SNVS_LPCR &= ~SNVS_LPCR_SRTC_ENV;
+	while (SNVS_LPCR & SNVS_LPCR_SRTC_ENV); // wait
+	// set the SRTC
+	SNVS_LPSRTCLR = t << 15;
+	SNVS_LPSRTCMR = t >> 17;
+	// start the SRTC
+	SNVS_LPCR |= SNVS_LPCR_SRTC_ENV;
+	while (!(SNVS_LPCR & SNVS_LPCR_SRTC_ENV)); // wait
+	// start the RTC and sync it to the SRTC
+	SNVS_HPCR |= SNVS_HPCR_RTC_EN | SNVS_HPCR_HP_TS;
+}
 
-#else
-	// Arduino's main() function just calls setup() and loop()....
-	setup();
-	while (1) {
-		loop();
-		yield();
-	}
-#endif
+void rtc_compensate(int adjust)
+{
 }
 

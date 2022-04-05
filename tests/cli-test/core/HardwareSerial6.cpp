@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2017 PJRC.COM, LLC.
+ * Copyright (c) 2019 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -29,32 +29,38 @@
  */
 
 #include <Arduino.h>
+#include "HardwareSerial.h"
 
-#define USING_MAKEFILE 1
-
-extern "C" int main(void)
-{
-#ifdef USING_MAKEFILE
-
-	// To use Teensy 4.0 without Arduino, simply put your code here.
-	// For example:
-
-	pinMode(13, OUTPUT);
-	while (1) {
-		digitalWriteFast(13, HIGH);
-		delay(500);
-		digitalWriteFast(13, LOW);
-		delay(500);
-	}
-
-
-#else
-	// Arduino's main() function just calls setup() and loop()....
-	setup();
-	while (1) {
-		loop();
-		yield();
-	}
+#ifndef SERIAL6_TX_BUFFER_SIZE
+#define SERIAL6_TX_BUFFER_SIZE     40 // number of outgoing bytes to buffer
 #endif
+#ifndef SERIAL6_RX_BUFFER_SIZE
+#define SERIAL6_RX_BUFFER_SIZE     64 // number of incoming bytes to buffer
+#endif
+#define IRQ_PRIORITY  64  // 0 = highest priority, 255 = lowest
+
+void IRQHandler_Serial6()
+{
+	Serial6.IRQHandler();
 }
 
+
+// Serial6
+static BUFTYPE tx_buffer6[SERIAL6_TX_BUFFER_SIZE];
+static BUFTYPE rx_buffer6[SERIAL6_RX_BUFFER_SIZE];
+uint8_t _serialEvent6_default __attribute__((weak)) PROGMEM = 0 ;
+
+static HardwareSerial::hardware_t UART1_Hardware = {
+	5, IRQ_LPUART1, &IRQHandler_Serial6, 
+	&serialEvent6, &_serialEvent6_default, 
+	CCM_CCGR5, CCM_CCGR5_LPUART1(CCM_CCGR_ON),
+	{{25,2, nullptr, 0}, {0xff, 0xff, nullptr, 0}},
+	{{24,2, nullptr, 0}, {0xff, 0xff, nullptr, 0}},
+	0xff, // No CTS pin
+	0, // No CTS
+	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
+	XBARA1_OUT_LPUART1_TRG_INPUT
+};
+
+HardwareSerial Serial6(&IMXRT_LPUART1, &UART1_Hardware, tx_buffer6, SERIAL6_TX_BUFFER_SIZE,
+	rx_buffer6,  SERIAL6_RX_BUFFER_SIZE);
