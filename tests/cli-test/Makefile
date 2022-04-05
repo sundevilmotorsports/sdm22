@@ -153,6 +153,7 @@ SIZE = $(COMPILERPATH)/arm-none-eabi-size
 
 # automatically create lists of the sources and objects
 # TODO: this does not handle Arduino libraries yet...
+# TODO: doesnt handle contrib folder yet
 C_FILES := $(wildcard $(SRCDIR)/*.c)
 CPP_FILES := $(wildcard $(SRCDIR)/*.cpp)
 TC_FILES := $(wildcard $(COREPATH)/*.c)
@@ -160,6 +161,10 @@ TCPP_FILES := $(wildcard $(COREPATH)/*.cpp)
 SOURCES := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o) $(TC_FILES:.c=.o) $(TCPP_FILES:.cpp=.o)
 #OBJS := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o)
 OBJS := $(foreach $(SRCDIR), $(SOURCES), $(BUILDDIR)/$(src))
+
+# the actual makefile rules (all .o files built by GNU make's default implicit rules)
+
+all: $(TARGET).hex
 
 $(BUILDDIR)/%.o: %.c
 	@echo -e "[CC]\t$<"
@@ -171,23 +176,26 @@ $(BUILDDIR)/%.o: %.cpp
 	@mkdir -p "$(dir $@)"
 	@$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o "$@" -c "$<"
 
-# the actual makefile rules (all .o files built by GNU make's default implicit rules)
-
-all: $(TARGET).hex
-
 $(TARGET).elf: $(OBJS) $(MCU_LD)
 	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
 %.hex: %.elf
 	$(SIZE) $<
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
+
+# used to be -file=$(basename $@)
+upload: $(TARGET).hex
 ifneq (,$(wildcard $(TOOLSPATH)))
-	$(TOOLSPATH)/teensy_post_compile -file=$(basename $@) -path=$(shell pwd) -tools=$(TOOLSPATH)
+	$(TOOLSPATH)/teensy_post_compile -file=$(TARGET) -path=$(shell pwd) -tools=$(TOOLSPATH)
 	-$(TOOLSPATH)/teensy_reboot
 endif
+
+reboot:
+	$(TOOLSPATH)/teensy_reboot
 
 # compiler generated dependency info
 -include $(OBJS:.o=.d)
 
 clean:
 	rm -f $(BUILDDIR)/*/*.o $(BUILDDIR)/*/*.d $(TARGET).elf $(TARGET).hex
+
