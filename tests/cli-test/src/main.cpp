@@ -29,6 +29,9 @@
  */
 
 #include <Arduino.h>
+#include <EEPROM.h>
+#include <SD.h>
+#include "Logger.h"
 
 #define USING_MAKEFILE 1
 
@@ -41,6 +44,7 @@ extern "C" int main(void)
 
 	pinMode(13, OUTPUT);
 	while (1) {
+		EEPROM.read(0);
 		digitalWriteFast(13, HIGH);
 		delay(500);
 		digitalWriteFast(13, LOW);

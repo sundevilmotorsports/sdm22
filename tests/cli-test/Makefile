@@ -103,13 +103,12 @@ ifdef ARDUINOPATH
 # path location for Teensy Loader, teensy_post_compile and teensy_reboot (on Linux)
 TOOLSPATH = $(abspath $(ARDUINOPATH)/hardware/tools)
 
-# path location for Arduino libraries (currently not used)
-LIBRARYPATH = $(abspath $(ARDUINOPATH)/libraries)
+# path location for libraries
+LIBRARYPATH = contrib
 
 # Path location for Teensy 4.x core
 COREPATH = core
-#COREPATH = $(abspath $(ARDUINOPATH)/hardware/teensy/avr/cores/teensy4)
-TEENSYLIBPATH = $(abspath $(ARDUINOPATH)/hardware/teensy/avr/libraries)
+
 # directory to build in
 BUILDDIR = build
 
@@ -131,7 +130,7 @@ endif
 #************************************************************************
 
 # CPPFLAGS = compiler options for C and C++
-CPPFLAGS = -Wall -g -O2 $(CPUOPTIONS) -MMD $(OPTIONS) -ffunction-sections -fdata-sections -I$(SRCDIR) -I$(COREPATH) -I$(TEENSYLIBPATH)
+CPPFLAGS = -Wall -g -O2 $(CPUOPTIONS) -MMD $(OPTIONS) -ffunction-sections -fdata-sections -I$(SRCDIR) -I$(COREPATH) #-I$(LIBRARYPATH)
 
 # compiler options for C++ only
 CXXFLAGS = -std=gnu++14 -felide-constructors -fno-exceptions -fpermissive -fno-rtti -Wno-error=narrowing
@@ -153,15 +152,20 @@ OBJCOPY = $(COMPILERPATH)/arm-none-eabi-objcopy
 SIZE = $(COMPILERPATH)/arm-none-eabi-size
 
 # automatically create lists of the sources and objects
-# TODO: this does not handle Arduino libraries yet...
-# TODO: doesnt handle contrib folder yet
-C_FILES := $(wildcard $(SRCDIR)/*.c)
-CPP_FILES := $(wildcard $(SRCDIR)/*.cpp)
+#TLC_FILES := $(wildcard $(LIBRARYPATH)/**/*.c)
+#TLCPP_FILES := $(wildcard $(LIBRARYPATH)/**/*.cpp)
+TLC_FILES := $(shell find $(LIBRARYPATH)/ -maxdepth 10 -type f -regex ".*\.c")
+TLCPP_FILES := $(shell find $(LIBRARYPATH)/ -maxdepth 10 -type f -regex ".*\.cpp")
 TC_FILES := $(wildcard $(COREPATH)/*.c)
 TCPP_FILES := $(wildcard $(COREPATH)/*.cpp)
-TLC_FILES := $(wildcard $(TEENSYLIBPATH)/*.c)
-TLCPP_FILES := $(wildcard $(TEENSYLIBPATH)/*.cpp)
+C_FILES := $(wildcard $(SRCDIR)/*.c)
+CPP_FILES := $(wildcard $(SRCDIR)/*.cpp)
 SOURCES := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o) $(TC_FILES:.c=.o) $(TCPP_FILES:.cpp=.o) $(TLC_FILES:.c=.o) $(TLCPP_FILES:.cpp=.o)
+
+# include paths for libraries
+L_INC := $(foreach lib, $(shell find $(LIBRARYPATH)/ -maxdepth 10 -type d), -I$(lib))
+#L_INC := $(foreach lib,$(filter %/, $(wildcard $(LIBRARYPATH)/**/)), -I$(lib))
+
 #OBJS := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o)
 OBJS := $(foreach $(SRCDIR), $(SOURCES), $(BUILDDIR)/$(src))
 
@@ -172,12 +176,12 @@ all: $(TARGET).hex
 $(BUILDDIR)/%.o: %.c
 	@echo -e "[CC]\t$<"
 	@mkdir -p "$(dir $@)"
-	@$(CC) $(CPPFLAGS) $(CFLAGS) -o "$@" -c "$<"
+	@$(CC) $(CPPFLAGS) $(CFLAGS) $(L_INC) -o "$@" -c "$<"
 
 $(BUILDDIR)/%.o: %.cpp
 	@echo -e "[CXX]\t$<"
 	@mkdir -p "$(dir $@)"
-	@$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o "$@" -c "$<"
+	@$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(L_INC) -o "$@" -c "$<"
 
 $(TARGET).elf: $(OBJS) $(MCU_LD)
 	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
@@ -200,5 +204,7 @@ reboot:
 -include $(OBJS:.o=.d)
 
 clean:
-	rm -f $(BUILDDIR)/*/*.o $(BUILDDIR)/*/*.d $(TARGET).elf $(TARGET).hex
+	rm -rf $(BUILDDIR)
+	rm -f $(TARGET).hex
+	rm -f $(TARGET).hex
 

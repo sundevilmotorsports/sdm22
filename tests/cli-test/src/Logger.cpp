@@ -16,12 +16,12 @@ void Logger::initializeFile(std::string filename, std::vector<std::string> colum
     sdmFile.name = path + filename + ".csv";
     sdmFile.currentRow.resize(columns.size() + 1); // add an extra column for timestamp
     sdmFile.columns.insert({"timestamp (s)", 0});
-    for(size_t i = 0; i < columns.size(); i++){
+    for(int i = 0; i < columns.size(); i++){
         sdmFile.columns.insert({columns[i], i+1});
     }
     
     // create csv header
-    File file = SD.open(sdmFile.name);
+    File file = SD.open(sdmFile.name.c_str());
     if(file){
         file.print("time");
         for(auto& c : columns){
@@ -48,7 +48,7 @@ bool Logger::addData(std::string filename, std::string column, float data){
 
 bool Logger::writeRow(std::string filename){
     std::string key = path + filename + ".csv";
-    File file = SD.open(key);
+    File file = SD.open(key.c_str());
     if(file){
         // first, make timestamp
         files[key].currentRow[0] = millis() / 1000.0;
