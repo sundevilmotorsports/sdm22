@@ -6,10 +6,10 @@ Logger::Logger(){
     // and use that for the mkdir number
     // TODO if SD.begin fails, set a boolean to false (which means we shouldnt log)
     path = "run01/"; // tmp
-    SD.mkdir(path);
+    SD.mkdir(path.c_str());
 }
 
-void Logger::initializeFile(std::string filename, std::vector<std::string> columns){
+void Logger::initializeFile(String filename, std::vector<String> columns){
     
     // create SDMFile object
     SDMFile sdmFile;
@@ -21,7 +21,7 @@ void Logger::initializeFile(std::string filename, std::vector<std::string> colum
     }
     
     // create csv header
-    File file = SD.open(sdmFile.name);
+    File file = SD.open(sdmFile.name.c_str());
     if(file){
         file.print("time");
         for(auto& c : columns){
@@ -35,8 +35,8 @@ void Logger::initializeFile(std::string filename, std::vector<std::string> colum
     files.insert({sdmFile.name, sdmFile});
 }
 
-bool Logger::addData(std::string filename, std::string column, float data){
-    std::string key = path + filename + ".csv";
+bool Logger::addData(String filename, String column, float data){
+    String key = path + filename + ".csv";
     auto pair = files[key].columns.find(column);
     if(pair != files[key].columns.end()){
         files[key].currentRow[pair->second] = data;
@@ -46,15 +46,15 @@ bool Logger::addData(std::string filename, std::string column, float data){
     
 }
 
-bool Logger::writeRow(std::string filename){
-    std::string key = path + filename + ".csv";
-    File file = SD.open(key);
+bool Logger::writeRow(String filename){
+    String key = path + filename + ".csv";
+    File file = SD.open(key.c_str());
     if(file){
         // first, make timestamp
         files[key].currentRow[0] = millis() / 1000.0;
 
         // print data
-        for(int i = 0; i < files[key].currentRow.size(); i++){
+        for(size_t i = 0; i < files[key].currentRow.size(); i++){
             file.print(files[key].currentRow[i]);
             // if we arent at the last column, print a comma
             if(i != files[key].currentRow.size() - 1)

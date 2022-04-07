@@ -41,9 +41,10 @@ extern "C" int main(void)
 
 	// To use Teensy 4.0 without Arduino, simply put your code here.
 	// For example:
-
+	Logger logger;
 	pinMode(13, OUTPUT);
 	while (1) {
+		logger.initializeFile("owo", {"uwu", "hehe"});
 		EEPROM.read(0);
 		digitalWriteFast(13, HIGH);
 		delay(500);
