@@ -5,13 +5,14 @@ A starting point for a Teensy 4.X project, without using the Arduino IDE
 - Download Teensyduino [here](https://www.pjrc.com/teensy/td_download.html).
 - Put your code in `src/`
 - Put libraries you use in `contrib/` (TODO)
+- make a `core/` folder and copy paste the teensy4 core from Teensyduino (minus `main.cpp` and `Makefile`)
 - edit `Makefile` according to your teensy version
 - use `make` to build code
 - use `make upload` to upload
 ## TODO
 - [x] don't automatically upload when building 
-- [ ] set up `Makefile` to handle `contrib`
-- [ ] include Arduino libraries (such as `SD.h`)
+- [x] set up `Makefile` to handle `contrib`
+- [x] include Arduino libraries (such as `SD.h`)
 - [ ] have `setup.sh` do things (i.e. set ARDUINOPATH)
 - [ ] have `Makefile` use core, libraries, etc. from the arduino installation instead of copy pasting here (since we don't need to edit core files)
 ## Where things came from
