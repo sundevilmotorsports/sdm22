@@ -108,7 +108,8 @@ LIBRARYPATH = $(abspath $(ARDUINOPATH)/libraries)
 
 # Path location for Teensy 4.x core
 COREPATH = core
-
+#COREPATH = $(abspath $(ARDUINOPATH)/hardware/teensy/avr/cores/teensy4)
+TEENSYLIBPATH = $(abspath $(ARDUINOPATH)/hardware/teensy/avr/libraries)
 # directory to build in
 BUILDDIR = build
 
@@ -130,7 +131,7 @@ endif
 #************************************************************************
 
 # CPPFLAGS = compiler options for C and C++
-CPPFLAGS = -Wall -g -O2 $(CPUOPTIONS) -MMD $(OPTIONS) -ffunction-sections -fdata-sections -I$(SRCDIR) -I$(COREPATH)
+CPPFLAGS = -Wall -g -O2 $(CPUOPTIONS) -MMD $(OPTIONS) -ffunction-sections -fdata-sections -I$(SRCDIR) -I$(COREPATH) -I$(TEENSYLIBPATH)
 
 # compiler options for C++ only
 CXXFLAGS = -std=gnu++14 -felide-constructors -fno-exceptions -fpermissive -fno-rtti -Wno-error=narrowing
@@ -158,7 +159,9 @@ C_FILES := $(wildcard $(SRCDIR)/*.c)
 CPP_FILES := $(wildcard $(SRCDIR)/*.cpp)
 TC_FILES := $(wildcard $(COREPATH)/*.c)
 TCPP_FILES := $(wildcard $(COREPATH)/*.cpp)
-SOURCES := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o) $(TC_FILES:.c=.o) $(TCPP_FILES:.cpp=.o)
+TLC_FILES := $(wildcard $(TEENSYLIBPATH)/*.c)
+TLCPP_FILES := $(wildcard $(TEENSYLIBPATH)/*.cpp)
+SOURCES := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o) $(TC_FILES:.c=.o) $(TCPP_FILES:.cpp=.o) $(TLC_FILES:.c=.o) $(TLCPP_FILES:.cpp=.o)
 #OBJS := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o)
 OBJS := $(foreach $(SRCDIR), $(SOURCES), $(BUILDDIR)/$(src))
 
