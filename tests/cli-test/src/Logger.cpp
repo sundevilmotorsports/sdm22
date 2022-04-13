@@ -21,7 +21,7 @@ void Logger::initializeFile(String filename, std::vector<String> columns){
     }
     
     // create csv header
-    File file = SD.open(sdmFile.name.c_str());
+    File file = SD.open(sdmFile.name.c_str(), FILE_WRITE);
     if(file){
         file.print("time");
         for(auto& c : columns){
@@ -48,7 +48,7 @@ bool Logger::addData(String filename, String column, float data){
 
 bool Logger::writeRow(String filename){
     String key = path + filename + ".csv";
-    File file = SD.open(key.c_str());
+    File file = SD.open(key.c_str(), FILE_WRITE);
     if(file){
         // first, make timestamp
         files[key].currentRow[0] = millis() / 1000.0;
