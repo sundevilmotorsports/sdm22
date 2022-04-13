@@ -1,5 +1,3 @@
 build
 *.elf
 *.hex
-contrib
-core
