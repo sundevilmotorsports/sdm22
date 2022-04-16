@@ -35,37 +35,33 @@ extern "C" int main(void)
 {
 #ifdef USING_MAKEFILE
 	Serial.begin(9600);
-	Serial1.begin(9600);
+	Serial1.begin(57600);
 	Logger logger;
-	logger.initializeFile("serialtesting", {"i","i+1", "Serial1-write", "Serial1-rx"});
 	pinMode(13, OUTPUT);
 	float i = 0;
+	unsigned long timer;
 	while (1) {
-		logger.addData("serialtesting", "i", i);
-		logger.addData("serialtesting", "i+1", i+1.0);
-		logger.addData("serialtesting", "Serial1-write", (float) Serial1.availableForWrite());
 		if(Serial1.available()){
 			byte incoming = Serial1.read();
-			logger.addData("serialtesting", "Serial1-rx", (float) incoming);
-			Serial.write(incoming);
-			
-		}
-		else{
-			logger.addData("serialtesting", "Serial1-rx", -1.0);
+			Serial.print((char) incoming);
+			if(incoming == ')'){
+				Serial.print("timer: ");
+				Serial.println(millis() - timer);
+			}
 		}
 
 		if(Serial.available()){
-			Serial1.print((char) Serial.read());
-		}
-		i++;
-		if(i == 100){
-			i = 0;
-			digitalWriteFast(13, HIGH);
-			delay(100);
-			digitalWriteFast(13, LOW);
-		}
-		logger.writeRow("serialtesting");
-		delay(20);
+			int incoming = Serial.read();
+			if(incoming == 's'){
+				Serial1.print("(RACC)");
+			}
+			else if(incoming == 'a'){
+				Serial1.print("(RPOT)");
+			}
+			timer = millis();
+			Serial.println((char) incoming);
+		} // end if serial avaialble
+		delay(5);
 	}
 
 

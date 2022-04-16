@@ -38,8 +38,8 @@ extern "C" int main(void)
 	// To use Teensy 4.0 without Arduino, simply put your code here.
 	// For example:
 	pinMode(13, OUTPUT);
-	Serial1.begin(9600);
 	Serial.begin(9600);
+	Serial1.begin(57600);
 	float i = 0.0;
 	bool readingPacket = false;
 	String message = "";
@@ -61,11 +61,19 @@ extern "C" int main(void)
 				if(incoming == ')'){
 					readingPacket = false;
 					Serial.println("Packet: " + message);
+					String output = "";
+					if(message.equals("(RACC)")){
+						output = "acc";
+					}
+					else if(message.equals("(RPOT)")){
+						output = "pot";
+					}
+					Serial1.print("(" + output + ")");
 				}
 			} // end if reading
 
 		} // if serial 1 available
-		delay(20);
+		delay(5);
 
 		#elif defined(BRBOARD)
 		i += 25;
