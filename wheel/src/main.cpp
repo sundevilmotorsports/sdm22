@@ -63,7 +63,7 @@ extern "C" int main(void)
 					Serial.println("Packet: " + message);
 					String output = "";
 					if(message.equals("(RACC)")){
-						output = "acc";
+						output = "1.23,-15.43,15.21";
 					}
 					else if(message.equals("(RPOT)")){
 						output = "pot";
