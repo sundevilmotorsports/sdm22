@@ -1,13 +1,9 @@
 #include "Logger.h"
 
 Logger::Logger(){
-    // TODO: move this out of Logger
-    Serial.begin(9600);
     SD.begin(BUILTIN_SDCARD);
 
-    // get used run number from EEPROM
-    // and use the incremented one
-    // then save new run number to EEPROM
+    // get previously used run number, use incremented and then save it back into EEPROM
     byte runNo = EEPROM.read(RUN_NO_ADDR);
     // if runNo == 255, then we need to reset it since byte's max size is 255
     if(runNo == 255){
@@ -35,7 +31,7 @@ void Logger::initializeFile(String filename, std::vector<String> columns){
     // create csv header
     File file = SD.open(sdmFile.name.c_str(), FILE_WRITE);
     if(file){
-        file.print("time");
+        file.print("timestamp (s)");
         for(auto& c : columns){
             file.print(", " + c);
         }

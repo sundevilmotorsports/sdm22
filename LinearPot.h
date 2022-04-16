@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Arduino.h>
 #include "Sensor.h"
 
 class LinearPot : public Sensor {
@@ -10,5 +9,5 @@ class LinearPot : public Sensor {
     void calibrate();
     void reset();
     float get();
-    std::string toString();
+    String toString();
 };

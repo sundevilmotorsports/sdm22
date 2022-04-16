@@ -1,7 +1,6 @@
 // class that represents an accelerometer, axdl335 or something like that
 #pragma once
 
-#include <Arduino.h>
 #include "Sensor.h"
 
 #define RESOLUTION_3V3 1023.0
@@ -23,7 +22,7 @@ class Accelerometer : public Sensor {
     float getX();
     float getY();
     float getZ();
-    std::string toString();
+    String toString();
 
     enum Axis {
         X,
