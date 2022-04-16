@@ -29,7 +29,8 @@
  */
 
 #include <Arduino.h>
-
+#define USING_MAKEFILE 0
+#define FLBOARD 0
 extern "C" int main(void)
 {
 #ifdef USING_MAKEFILE
@@ -37,14 +38,42 @@ extern "C" int main(void)
 	// To use Teensy 4.0 without Arduino, simply put your code here.
 	// For example:
 	pinMode(13, OUTPUT);
+	Serial1.begin(9600);
+	Serial.begin(9600);
+	float i = 0.0;
+	bool readingPacket = false;
+	String message = "";
 	while (1) {
 		#if defined(FLBOARD)
-		digitalWriteFast(13, HIGH);
-		delay(1000);
-		digitalWriteFast(13, LOW);
-		delay(1000);
+		i++;
+		if(i == 255){
+			i = 0;
+		}
+		if(Serial1.available()){
+			int incoming = Serial1.read();
+			if(incoming == '('){
+				Serial.print("begin packet");
+				message = "";
+				readingPacket = true;
+			}
+			if(readingPacket){
+				message += (char) incoming;
+				if(incoming == ')'){
+					readingPacket = false;
+					Serial.println("Packet: " + message);
+				}
+			} // end if reading
+
+		} // if serial 1 available
+		delay(20);
 
 		#elif defined(BRBOARD)
+		i += 25;
+		if (i == 255){
+			i = 0;
+		}
+		Serial1.println(i);
+
 		digitalWriteFast(13, HIGH);
 		delay(1000);
 		digitalWriteFast(13, LOW);

@@ -30,21 +30,33 @@
 
 #include <Arduino.h>
 #include "Logger.h"
-
+#define USING_MAKEFILE
 extern "C" int main(void)
 {
 #ifdef USING_MAKEFILE
 	Serial.begin(9600);
 	Serial1.begin(9600);
 	Logger logger;
-	logger.initializeFile("test", {"i","i+1", "Serial1"});
+	logger.initializeFile("serialtesting", {"i","i+1", "Serial1-write", "Serial1-rx"});
 	pinMode(13, OUTPUT);
 	float i = 0;
 	while (1) {
-		logger.addData("test", "i", i);
-		logger.addData("test", "i+1", i+1.0);
-		logger.addData("test", "Serial1", (float) Serial1.availableForWrite());
-		Serial.println("Available to write on Serial1: " Serial1.availableForWrite());
+		logger.addData("serialtesting", "i", i);
+		logger.addData("serialtesting", "i+1", i+1.0);
+		logger.addData("serialtesting", "Serial1-write", (float) Serial1.availableForWrite());
+		if(Serial1.available()){
+			byte incoming = Serial1.read();
+			logger.addData("serialtesting", "Serial1-rx", (float) incoming);
+			Serial.write(incoming);
+			
+		}
+		else{
+			logger.addData("serialtesting", "Serial1-rx", -1.0);
+		}
+
+		if(Serial.available()){
+			Serial1.print((char) Serial.read());
+		}
 		i++;
 		if(i == 100){
 			i = 0;
@@ -52,7 +64,7 @@ extern "C" int main(void)
 			delay(100);
 			digitalWriteFast(13, LOW);
 		}
-		logger.writeRow("test");
+		logger.writeRow("serialtesting");
 		delay(20);
 	}
 
