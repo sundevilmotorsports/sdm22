@@ -44,7 +44,7 @@ extern "C" int main(void)
 		logger.addData("test", "i+1", i+1.0);
 
 		i++;
-		if(i == 1000){
+		if(i == 100){
 			i = 0;
 			digitalWriteFast(13, HIGH);
 			delay(100);

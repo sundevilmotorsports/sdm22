@@ -7,8 +7,11 @@
 
 #include <Arduino.h>
 #include <SD.h>
+#include <EEPROM.h>
 #include <vector>
 #include <map>
+
+#define RUN_NO_ADDR 0
 
 // data structure used to represent a csv file
 // name: complete filename w/ path
