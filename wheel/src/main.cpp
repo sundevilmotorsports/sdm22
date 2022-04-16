@@ -29,7 +29,6 @@
  */
 
 #include <Arduino.h>
-#include <EEPROM.h>
 
 extern "C" int main(void)
 {
@@ -39,11 +38,18 @@ extern "C" int main(void)
 	// For example:
 	pinMode(13, OUTPUT);
 	while (1) {
-		EEPROM.read(0);
+		#if defined(FLBOARD)
 		digitalWriteFast(13, HIGH);
-		delay(500);
+		delay(1000);
 		digitalWriteFast(13, LOW);
-		delay(500);
+		delay(1000);
+
+		#elif defined(BRBOARD)
+		digitalWriteFast(13, HIGH);
+		delay(1000);
+		digitalWriteFast(13, LOW);
+		delay(3000);
+		#endif
 	}
 
 

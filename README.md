@@ -11,7 +11,8 @@ Pictures TODO
 Currently only supporting Linux. MacOS might work.
 
 1. Install the latest version of [Teensyduino](https://www.pjrc.com/teensy/td_download.html).
-This project was built using Teensyduino 1.56
+This project was built using Teensyduino 1.56.
+
 ```bash
 # Get the project
 $ git clone git@github.com:sundevilmotorsports/sdm22.git
@@ -20,8 +21,14 @@ $ cd sdm22
 # Change directory to the relevant project
 $ cd main
 
-# Compile and upload
+# Compile
 $ make ARDUINOPATH='abspath/to/arduino/installation'
+
+# if compiling for wheel board, be sure to set the board
+# options: FLBOARD (default if not specified), BRBOARD
+$ make WHEELBOARD=FLBOARD
+
+# Upload
 $ make upload
 ```
 ## More Information
