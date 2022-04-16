@@ -35,7 +35,7 @@ extern "C" int main(void)
 {
 #ifdef USING_MAKEFILE
 	Serial.begin(9600);
-	Serial1.begin(57600);
+	Serial1.begin(115200);
 	Logger logger;
 	pinMode(13, OUTPUT);
 	float i = 0;
@@ -43,9 +43,8 @@ extern "C" int main(void)
 	while (1) {
 		if(Serial1.available()){
 			byte incoming = Serial1.read();
-			Serial.print((char) incoming);
 			if(incoming == ')'){
-				Serial.print("timer: ");
+				Serial.print("time: ");
 				Serial.println(millis() - timer);
 			}
 		}
@@ -59,7 +58,6 @@ extern "C" int main(void)
 				Serial1.print("(RPOT)");
 			}
 			timer = millis();
-			Serial.println((char) incoming);
 		} // end if serial avaialble
 		delay(5);
 	}

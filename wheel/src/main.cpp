@@ -39,7 +39,7 @@ extern "C" int main(void)
 	// For example:
 	pinMode(13, OUTPUT);
 	Serial.begin(9600);
-	Serial1.begin(57600);
+	Serial1.begin(115200);
 	float i = 0.0;
 	bool readingPacket = false;
 	String message = "";
@@ -52,7 +52,6 @@ extern "C" int main(void)
 		if(Serial1.available()){
 			int incoming = Serial1.read();
 			if(incoming == '('){
-				Serial.print("begin packet");
 				message = "";
 				readingPacket = true;
 			}
@@ -60,7 +59,7 @@ extern "C" int main(void)
 				message += (char) incoming;
 				if(incoming == ')'){
 					readingPacket = false;
-					Serial.println("Packet: " + message);
+					Serial.println("R: " + message);
 					String output = "";
 					if(message.equals("(RACC)")){
 						output = "1.23,-15.43,15.21";
