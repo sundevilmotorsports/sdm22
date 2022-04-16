@@ -34,15 +34,17 @@
 extern "C" int main(void)
 {
 #ifdef USING_MAKEFILE
-
+	Serial.begin(9600);
+	Serial1.begin(9600);
 	Logger logger;
-	logger.initializeFile("test", {"i","i+1"});
+	logger.initializeFile("test", {"i","i+1", "Serial1"});
 	pinMode(13, OUTPUT);
 	float i = 0;
 	while (1) {
 		logger.addData("test", "i", i);
 		logger.addData("test", "i+1", i+1.0);
-
+		logger.addData("test", "Serial1", (float) Serial1.availableForWrite());
+		Serial.println("Available to write on Serial1: " Serial1.availableForWrite());
 		i++;
 		if(i == 100){
 			i = 0;
