@@ -49,6 +49,7 @@ extern "C" int main(void)
 		if(i == 255){
 			i = 0;
 		}
+		
 		if(Serial1.available()){
 			int incoming = Serial1.read();
 			if(incoming == '('){
@@ -70,8 +71,8 @@ extern "C" int main(void)
 					Serial1.print("(" + output + ")");
 				}
 			} // end if reading
-
 		} // if serial 1 available
+		
 		delay(5);
 
 		#elif defined(BRBOARD)
@@ -79,12 +80,15 @@ extern "C" int main(void)
 		if (i == 255){
 			i = 0;
 		}
-		Serial1.println(i);
-
+		Serial.print("A0: " + String(analogRead(A0)));
+		Serial.print("\tA1: " + String(analogRead(A1)));
+		Serial.print("\tA2: " + String(analogRead(A2)));
+		Serial.print("\tA6: " + String(analogRead(A6)));
+		Serial.println("\taA7: " + String(analogRead(A7)));
 		digitalWriteFast(13, HIGH);
-		delay(1000);
+		delay(500);
 		digitalWriteFast(13, LOW);
-		delay(3000);
+		delay(500);
 		#endif
 	}
 

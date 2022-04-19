@@ -35,14 +35,16 @@ extern "C" int main(void)
 {
 #ifdef USING_MAKEFILE
 	Serial.begin(9600);
-	Serial1.begin(115200);
-	Logger logger;
+	Serial8.begin(115200);
+	//Logger logger;
 	pinMode(13, OUTPUT);
 	float i = 0;
 	unsigned long timer;
 	while (1) {
-		if(Serial1.available()){
-			byte incoming = Serial1.read();
+
+		 
+		if(Serial8.available()){
+			byte incoming = Serial8.read();
 			if(incoming == ')'){
 				Serial.print("time: ");
 				Serial.println(millis() - timer);
@@ -52,13 +54,14 @@ extern "C" int main(void)
 		if(Serial.available()){
 			int incoming = Serial.read();
 			if(incoming == 's'){
-				Serial1.print("(RACC)");
+				Serial8.print("(RACC)");
 			}
 			else if(incoming == 'a'){
-				Serial1.print("(RPOT)");
+				Serial8.print("(RPOT)");
 			}
 			timer = millis();
 		} // end if serial avaialble
+		
 		delay(5);
 	}
 
