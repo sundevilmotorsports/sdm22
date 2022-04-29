@@ -29,39 +29,43 @@
  */
 
 #include <Arduino.h>
+#include <FlexCAN_T4.h>
 #include "Logger.h"
 #define USING_MAKEFILE
+
+void canSniff(const CAN_message_t &msg) {
+  Serial.print("MB "); Serial.print(msg.mb);
+  Serial.print("  OVERRUN: "); Serial.print(msg.flags.overrun);
+  Serial.print("  LEN: "); Serial.print(msg.len);
+  Serial.print(" EXT: "); Serial.print(msg.flags.extended);
+  Serial.print(" TS: "); Serial.print(msg.timestamp);
+  Serial.print(" ID: "); Serial.print(msg.id, HEX);
+  Serial.print(" Buffer: ");
+  for ( uint8_t i = 0; i < msg.len; i++ ) {
+    Serial.print(msg.buf[i], HEX); Serial.print(" ");
+  } Serial.println();
+}
+
+
 extern "C" int main(void)
 {
 #ifdef USING_MAKEFILE
 	Serial.begin(9600);
-	Serial8.begin(115200);
-	//Logger logger;
+	//Serial8.begin(115200);
+	Logger logger;
+	logger.initializeFile("CANtest", {"uwu"});
 	pinMode(13, OUTPUT);
-	float i = 0;
-	unsigned long timer;
+	FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_16> Can0;
+	Can0.begin();
+  Can0.setBaudRate(1000000);
+  Can0.setMaxMB(16);
+  Can0.enableFIFO();
+  Can0.enableFIFOInterrupt();
+  
+  Can0.onReceive(canSniff);
+  Can0.mailboxStatus();
 	while (1) {
-
-		 
-		if(Serial8.available()){
-			byte incoming = Serial8.read();
-			if(incoming == ')'){
-				Serial.print("time: ");
-				Serial.println(millis() - timer);
-			}
-		}
-
-		if(Serial.available()){
-			int incoming = Serial.read();
-			if(incoming == 's'){
-				Serial8.print("(RACC)");
-			}
-			else if(incoming == 'a'){
-				Serial8.print("(RPOT)");
-			}
-			timer = millis();
-		} // end if serial avaialble
-		
+		Can0.events();
 		delay(5);
 	}
 
