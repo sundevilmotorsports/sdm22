@@ -16,7 +16,7 @@
  * near a magnet = 20 or 40 or 50, dpeends on wire length
  * if we stick more magnets to each other, the detectable range goes
  * up
- * 
+ * it is VERY dependent on breadboard pin/wires used
  */
 
 
@@ -54,6 +54,8 @@ class HallEffect : public Sensor {
     int pin;
     int zeroVal = 0;
     int counts = 0;
+    int prev = 0; // temporary
     bool justPassed = false;
+    uint32_t speed = 0.0;
     uint32_t timestamp = 0; 
 };

@@ -39,15 +39,16 @@ extern "C" int main(void)
 	// For example:
 	pinMode(13, OUTPUT);
 	HallEffect he(A9);
+	he.calibrate();
 	Serial.begin(9600);
 	Serial1.begin(115200);
 	float i = 0.0;
 	bool readingPacket = false;
 	String message = "";
+
 	while (1) {
 		he.onLoop();
 		#if defined(FLBOARD)
-		Serial.println(he.toString());	
 
 		#elif defined(BRBOARD)
 		Serial.println(he.toString());
