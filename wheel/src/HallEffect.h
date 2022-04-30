@@ -9,6 +9,17 @@
 #pragma once
 #include "Sensor.h"
 
+/**
+ * notes from testing hall effect sensor:
+ * it is binary - near a magnet, or not
+ * resting value is always ~10 or 11
+ * near a magnet = 20 or 40 or 50, dpeends on wire length
+ * if we stick more magnets to each other, the detectable range goes
+ * up
+ * 
+ */
+
+
 class HallEffect : public Sensor {
     public:
     // combines setPin, calibrate

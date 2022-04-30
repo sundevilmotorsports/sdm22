@@ -26,10 +26,21 @@ void HallEffect::reset(){
 }
 
 void HallEffect::onLoop(){
+    /*
     int diff = getRawDiff();
     if(diff > 900 && !justPassed){
         justPassed = true;
         // TODO
     }
     else if(diff < 10) justPassed = false;
+    */
+   Serial.println(toString());
+}
+
+float HallEffect::get(){
+    return (float) analogRead(pin);
+}
+
+String HallEffect::toString(){
+    return "analogRead: " + String(get());
 }

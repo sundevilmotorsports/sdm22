@@ -38,7 +38,7 @@ extern "C" int main(void)
 	// To use Teensy 4.0 without Arduino, simply put your code here.
 	// For example:
 	pinMode(13, OUTPUT);
-	HallEffect he(A7);
+	HallEffect he(A9);
 	Serial.begin(9600);
 	Serial1.begin(115200);
 	float i = 0.0;
