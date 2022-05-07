@@ -48,10 +48,10 @@ extern "C" int main(void)
 
 	while (1) {
 		he.onLoop();
+		Serial.println(he.toString());
 		#if defined(FLBOARD)
 
 		#elif defined(BRBOARD)
-		Serial.println(he.toString());
 		#endif
 		delay(5);
 	}

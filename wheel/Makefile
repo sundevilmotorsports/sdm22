@@ -38,7 +38,7 @@ MCU_DEF = ARDUINO_TEENSY40
 #MCU_DEF = ARDUINO_TEENSY41
 
 # The name of your project (used to name the compiled .hex file)
-TARGET = main
+TARGET = wheel
 
 # configurable options
 OPTIONS = -DF_CPU=600000000 -DUSB_SERIAL -DLAYOUT_US_ENGLISH -DUSING_MAKEFILE

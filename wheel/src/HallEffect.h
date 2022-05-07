@@ -36,7 +36,7 @@ class HallEffect : public Sensor {
     // call this in the main loop
     void onLoop();
 
-    // returns encoder count
+    // returns speed of wheel
     float get(); 
 
     // returns raw analog value (or abs(raw-zeroVal))
@@ -45,17 +45,25 @@ class HallEffect : public Sensor {
 
     // returns speed of wheel in mph
     float getSpeed();
-    
+
+    // returns encoder count
+    int getEncoder(); 
+
     // format:
-    // he sensor: pin\tgetRaw()\tget()\tgetSpeed (mph)
+    // millis()/1000.0,pin,getRaw,getDiff,getSpeed
     String toString();
 
     protected:
+    // in meters
+    float wheelCirc = .376;
     int pin;
     int zeroVal = 0;
     int counts = 0;
-    int prev = 0; // temporary
     bool justPassed = false;
-    uint32_t speed = 0.0;
+    // uint32_t speed = 0.0;
+
+    // in m/s
+    // TODO: convert to mph
+    float speed = 0.0;
     uint32_t timestamp = 0; 
 };

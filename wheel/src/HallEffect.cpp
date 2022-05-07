@@ -30,36 +30,40 @@ void HallEffect::onLoop(){
     int diff = getRawDiff();
     if(diff >= 6 && !justPassed){
         justPassed = true;
-        // TODO
-        // in meters, distance travelled since last detection
-        float wheelCirc = .376;
-        prev = counts++;
         uint32_t current = millis();
-        float dt = (int) (current - timestamp); // in ms
-        dt /= 1000; // convert dt -> seconds
+        float dt = (float) (current - timestamp); // in ms
+        dt /= 1000; // convert dt to seconds
 
         // meters per second 
-        speed = .376/ dt;
+        speed = wheelCirc/ dt;
         timestamp = current;
     }
     else if(diff < 4) justPassed = false;
 
-    Serial.println(toString());
-    Serial.println(millis() - timestamp);
     if(justPassed) digitalWriteFast(13, HIGH);
     else digitalWriteFast(13, LOW);
-
-
 }
 
 float HallEffect::get(){
-    return (float) counts;
+    return getSpeed();
+}
+
+int HallEffect::getRaw(){
+    return analogRead(pin);
 }
 
 int HallEffect::getRawDiff(){
-    return abs(analogRead(pin) - zeroVal);
+    return abs(getRaw() - zeroVal);
+}
+
+float HallEffect::getSpeed(){
+    return speed;
+}
+
+int HallEffect::getEncoder(){
+    return counts;
 }
 
 String HallEffect::toString(){
-    return "diff: " + String(getRawDiff())+ "\tcounts: " + String(counts) + "\tspeed (m/s): " + String(speed);
+    return String(millis()/1000.0) + "," + String(pin) + "," + String(getRaw()) + "," + String(getRawDiff()) + "," + String(getSpeed());
 }
