@@ -1,28 +1,33 @@
 #pragma once
 
+#include <vector>
+#include <utility>
 #include <Arduino.h>
 
 class SDMSerial {
     public:
-    SDMSerial(bool isServer);
+    SDMSerial(std::vector<int> ports, bool isServer);
 
     enum PacketType {
         INIT, // i
-        RACC, // a
-        RTMP, // t
-        RHES, // h
-        RPOT, // p
         ERRO, // e
         DATA  // d
     };
 
-    bool request(int port, SDMSerial::PacketType type, String& buffer, uint32_t timeout);
+    void onLoop();
+    bool send(int port, SDMSerial::PacketType, String message);
+    std::pair<bool, std::vector<int>> isMessageReady();
+
+    // clear the buffer
+    String getMessage(int port);
 
 
     protected:
-    // if true, packet types will mean different things
-    // than if false
-    // main board: true
-    // wheel board: false
-    bool isServer = true;
+
+    // list of serial ports in use
+    std::vector<int> ports;
+
+    // corresponds to a port
+    std::vector<String> buffers;
+    std::vector<bool> flags;
 };
