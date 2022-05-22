@@ -30,29 +30,31 @@
 
 #include <Arduino.h>
 #include "HallEffect.h"
+#include "SDMSerial.h"
 #define USING_MAKEFILE 0
 extern "C" int main(void)
 {
 #ifdef USING_MAKEFILE
 
-	// To use Teensy 4.0 without Arduino, simply put your code here.
-	// For example:
 	pinMode(13, OUTPUT);
 	HallEffect he(A9);
 	he.calibrate();
-	Serial.begin(9600);
-	Serial1.begin(115200);
-	float i = 0.0;
-	bool readingPacket = false;
-	String message = "";
+	SDMSerial comm({1}, false);
 
 	while (1) {
 		he.onLoop();
-		Serial.println(he.toString());
-		#if defined(FLBOARD)
-
-		#elif defined(BRBOARD)
-		#endif
+		//Serial.println(he.toString());
+		if(Serial.available()){
+			int incoming = Serial.read();
+			if(incoming == 's'){
+				float speed = he.getSpeed();
+				comm.send(1, SDMSerial::PacketType::DATA, String(speed,2));
+			}
+			else if(incoming == 'a'){
+				int raw = he.getRawDiff();
+				comm.send(1, SDMSerial::PacketType::DATA, String(raw));
+			}
+		} // end if serial avaialble
 		delay(5);
 	}
 

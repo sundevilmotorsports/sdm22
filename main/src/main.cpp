@@ -31,6 +31,7 @@
 #include <Arduino.h>
 #include <FlexCAN_T4.h>
 #include "Logger.h"
+#include "SDMSerial.h"
 #define USING_MAKEFILE
 
 void canSniff(const CAN_message_t &msg) {
@@ -50,22 +51,20 @@ void canSniff(const CAN_message_t &msg) {
 extern "C" int main(void)
 {
 #ifdef USING_MAKEFILE
-	Serial.begin(9600);
-	//Serial8.begin(115200);
-	Logger logger;
-	logger.initializeFile("CANtest", {"uwu"});
 	pinMode(13, OUTPUT);
-	FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_16> Can0;
-	Can0.begin();
-  Can0.setBaudRate(1000000);
-  Can0.setMaxMB(16);
-  Can0.enableFIFO();
-  Can0.enableFIFOInterrupt();
-  
-  Can0.onReceive(canSniff);
-  Can0.mailboxStatus();
+	SDMSerial comm({1}, true);
 	while (1) {
-		Can0.events();
+		comm.onLoop();
+		
+		std::pair<bool, std::vector<int>> status = comm.isMessageReady();
+		if(status.first){
+			for(auto p : status.second){
+				Serial.print(p);
+				Serial.print(" ");
+				Serial.print(comm.getMessage(p));
+			}
+			Serial.println();
+		}
 		delay(5);
 	}
 
