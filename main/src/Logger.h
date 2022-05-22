@@ -11,7 +11,8 @@
 #include <vector>
 #include <map>
 
-#define RUN_NO_ADDR 0
+#define RUN_NO_ADDR     0
+#define SENTINEL_VAL    -999.9
 
 // data structure used to represent a csv file
 // name: complete filename w/ path
@@ -21,6 +22,7 @@ typedef struct SDMFile_s_t {
     String name;
     std::map<String, size_t> columns;
     std::vector<float> currentRow;
+    std::vector<float> previousRow;
 } SDMFile;
 
 class Logger {

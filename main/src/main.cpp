@@ -52,18 +52,17 @@ extern "C" int main(void)
 {
 #ifdef USING_MAKEFILE
 	pinMode(13, OUTPUT);
-	SDMSerial comm({1}, true);
+	SDMSerial comm({0,1}, true);
 	while (1) {
 		comm.onLoop();
 		
 		std::pair<bool, std::vector<int>> status = comm.isMessageReady();
 		if(status.first){
 			for(auto p : status.second){
-				Serial.print(p);
-				Serial.print(" ");
 				Serial.print(comm.getMessage(p));
 			}
-			Serial.println();
+		}
+		else{
 		}
 		delay(5);
 	}

@@ -23,6 +23,15 @@ void Logger::initializeFile(String filename, std::vector<String> columns){
     SDMFile sdmFile;
     sdmFile.name = path + filename + ".csv";
     sdmFile.currentRow.resize(columns.size() + 1); // add an extra column for timestamp
+    sdmFile.previousRow.resize(columns.size() + 1);
+
+    // initialize
+    for(size_t i = 0; i < sdmFile.currentRow.size(); i++){
+        sdmFile.currentRow[i] = SENTINEL_VAL;
+        sdmFile.previousRow[i] = SENTINEL_VAL;
+    }
+
+    // setup columns
     sdmFile.columns.insert({"timestamp (s)", 0});
     for(size_t i = 0; i < columns.size(); i++){
         sdmFile.columns.insert({columns[i], i+1});
@@ -61,6 +70,12 @@ bool Logger::writeRow(String filename){
         // first, make timestamp
         files[key].currentRow[0] = millis() / 1000.0;
 
+        // TODO: if a data thing is missing, use previousRow data for it
+        for(int i = 0; i < files[key].currentRow[i]; i++){
+            if(files[key].currentRow[i] == SENTINEL_VAL)
+                files[key].currentRow[i] = files[key].previousRow[i];
+        }
+
         // print data
         for(size_t i = 0; i < files[key].currentRow.size(); i++){
             file.print(files[key].currentRow[i]);
@@ -71,9 +86,13 @@ bool Logger::writeRow(String filename){
         file.println();
         file.close();
 
+        // copy currentRow to previousRow
+        for(int i = 0; i < files[key].previousRow.size(); i++){
+            files[key].previousRow[i] = files[key].currentRow[i];
+        }
         // reset currentRow
         for(auto& c : files[key].currentRow)
-            c = 0.0;
+            c = SENTINEL_VAL;
         
         return true;
     }

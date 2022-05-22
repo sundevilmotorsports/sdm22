@@ -39,23 +39,13 @@ extern "C" int main(void)
 	pinMode(13, OUTPUT);
 	HallEffect he(A9);
 	he.calibrate();
-	SDMSerial comm({1}, false);
+	SDMSerial comm({0,1}, false);
 
 	while (1) {
 		he.onLoop();
-		//Serial.println(he.toString());
-		if(Serial.available()){
-			int incoming = Serial.read();
-			if(incoming == 's'){
-				float speed = he.getSpeed();
-				comm.send(1, SDMSerial::PacketType::DATA, String(speed,2));
-			}
-			else if(incoming == 'a'){
-				int raw = he.getRawDiff();
-				comm.send(1, SDMSerial::PacketType::DATA, String(raw));
-			}
-		} // end if serial avaialble
-		delay(5);
+		float speed = he.getSpeed();
+		comm.send(1, SDMSerial::PacketType::DATA, String(speed, 2));
+		delay(50);
 	}
 
 
