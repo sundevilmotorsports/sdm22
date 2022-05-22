@@ -34,25 +34,15 @@
 #include "SDMSerial.h"
 #define USING_MAKEFILE
 
-void canSniff(const CAN_message_t &msg) {
-  Serial.print("MB "); Serial.print(msg.mb);
-  Serial.print("  OVERRUN: "); Serial.print(msg.flags.overrun);
-  Serial.print("  LEN: "); Serial.print(msg.len);
-  Serial.print(" EXT: "); Serial.print(msg.flags.extended);
-  Serial.print(" TS: "); Serial.print(msg.timestamp);
-  Serial.print(" ID: "); Serial.print(msg.id, HEX);
-  Serial.print(" Buffer: ");
-  for ( uint8_t i = 0; i < msg.len; i++ ) {
-    Serial.print(msg.buf[i], HEX); Serial.print(" ");
-  } Serial.println();
-}
-
 
 extern "C" int main(void)
 {
 #ifdef USING_MAKEFILE
 	pinMode(13, OUTPUT);
 	SDMSerial comm({0,1}, true);
+	Logger logger;
+	logger.initializeFile("test-owo", {"i", "owo"});
+	int i = 0;
 	while (1) {
 		comm.onLoop();
 		
@@ -64,6 +54,13 @@ extern "C" int main(void)
 		}
 		else{
 		}
+
+		// logger missing data test
+		i++;
+		logger.addData("test-owo", "i", i);
+		if(i % 20 == 0)
+			logger.addData("test-owo", "owo", i);
+		logger.writeRow("test-owo");
 		delay(5);
 	}
 

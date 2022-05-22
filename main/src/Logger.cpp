@@ -70,29 +70,31 @@ bool Logger::writeRow(String filename){
         // first, make timestamp
         files[key].currentRow[0] = millis() / 1000.0;
 
-        // TODO: if a data thing is missing, use previousRow data for it
-        for(int i = 0; i < files[key].currentRow[i]; i++){
-            if(files[key].currentRow[i] == SENTINEL_VAL)
+        // if a data thing is missing, use previousRow data for it
+        for(size_t i = 0; i < files[key].currentRow.size(); i++){
+            if(files[key].currentRow[i] == SENTINEL_VAL){
                 files[key].currentRow[i] = files[key].previousRow[i];
+            }
         }
 
         // print data
         for(size_t i = 0; i < files[key].currentRow.size(); i++){
             file.print(files[key].currentRow[i]);
             // if we arent at the last column, print a comma
-            if(i != files[key].currentRow.size() - 1)
-                file.print(", ");
+            if(i != files[key].currentRow.size() - 1){
+                file.print(",");
+            }
         }
         file.println();
         file.close();
 
         // copy currentRow to previousRow
-        for(int i = 0; i < files[key].previousRow.size(); i++){
+        for(size_t i = 0; i < files[key].previousRow.size(); i++){
             files[key].previousRow[i] = files[key].currentRow[i];
         }
         // reset currentRow
-        for(auto& c : files[key].currentRow)
-            c = SENTINEL_VAL;
+        for(size_t i = 0; i < files[key].currentRow.size(); i++)
+            files[key].currentRow[i] = SENTINEL_VAL;
         
         return true;
     }
