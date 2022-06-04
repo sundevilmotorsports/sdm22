@@ -31,6 +31,7 @@
 #include <Arduino.h>
 #include <FlexCAN_T4.h>
 #include "Logger.h"
+#include "LinearPot.h"
 #include "SDMSerial.h"
 #define USING_MAKEFILE
 

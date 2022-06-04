@@ -42,6 +42,7 @@ extern "C" int main(void)
 	SDMSerial comm({0,1}, false);
 
 	while (1) {
+		//comm.onLoop();
 		he.onLoop();
 		float speed = he.getSpeed();
 		comm.send(1, SDMSerial::PacketType::DATA, String(speed, 2));

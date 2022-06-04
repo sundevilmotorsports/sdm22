@@ -1,0 +1,30 @@
+\documentclass[12pt]{article}
+
+\title{SDM-22 Data Acquisition Package\\User Manual}
+\author{Sun Devil Motorsports DAQ Team}
+\date{Revised \today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\section{System Overview}
+Sun Devil Motorsports' Data Acquisition team is responsible for collecting and analyzing data from the car.
+
+This year we have developed a very poggers DAQ package.
+\pagebreak
+\section{Usage}
+To begin logging data, plug in the battery cable of the main board into the ECU's 5V output.
+If powered on, the onboard LED on the main board's Teensy will be lit up.
+Data will be logged to the Teensy's micro SD card on the main board.
+The most recent run will have the largest run number on the micro SD card.
+
+\textbf{Do not have USB power and 5V from the ECU plugged in at the same time!}
+Doing so may risk power flowing back into the USB port.
+This is because VUSB and VCC on the Teensy boards are connected to each other.
+\section{Wiring and Pinouts}
+\subsection{Main Board}
+\subsection{Wheel Boards}
+\section{Software}
+\section{Packing List}
+\section{Meme}
+\end{document}
