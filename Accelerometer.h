@@ -5,6 +5,13 @@
 
 #define RESOLUTION_3V3 1023.0
 
+typedef struct AccelerometerSettings_s_t {
+    const int pin;
+    float bias;
+    float rate;
+    float avg;
+} AccelerometerSettings;
+
 class Accelerometer : public Sensor {
     public:
     Accelerometer(); // TODO
@@ -12,6 +19,7 @@ class Accelerometer : public Sensor {
     void initialize();
     void calibrate();
     void reset();
+    void set(Axis axis, const int pin, float bias, float rate);
 
     // returns magnitude of acceleration vector
     float get();
@@ -33,25 +41,13 @@ class Accelerometer : public Sensor {
     protected:
     float calculateAcceleration(Axis axis);
     // pins
-    const int pinX;
-    const int pinY;
-    const int pinZ;
-
     // tuning constants
     // biases
-    float biasX;
-    float biasY;
-    float biasZ;
-
     // volts -> g conversion rate (i.e. V/g)
-    float rateX;
-    float rateY;
-    float rateZ;
-
     // calculated in calibrate
-    float avgX;
-    float avgY;
-    float avgZ;
+    AccelerometerSettings settingsX;
+    AccelerometerSettings settingsY;
+    AccelerometerSettings settingsZ;
 
     // TODO 
     // need to do some linear algebra magic

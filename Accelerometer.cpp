@@ -1,5 +1,35 @@
 #include "Accelerometer.h"
 
+
+Accelerometer::Accelerometer(){
+
+}
+
+void Accelerometer::set(Axis axis, const int pin, float bias, float rate){
+    switch(axis){
+        case Accelerometer::Axis::X:
+        settingsX.pin = pin;
+        settingsX.bias = bias;
+        settingsX.rate = rate;
+        break;
+        case Accelerometer::Axis::Y:
+        settingsY.pin = pin;
+        settingsY.bias = bias;
+        settingsY.rate = rate;
+        break;
+        case Accelerometer::Axis::Z:
+        settingsZ.pin = pin;
+        settingsZ.bias = bias;
+        settingsZ.rate = rate;
+        break;
+        default:
+        settingsX.pin = pin;
+        settingsX.bias = bias;
+        settingsX.rate = rate;
+        break;
+    }
+}
+
 float Accelerometer::calculateAcceleration(Axis axis){
     int pin;
     float bias, rate;
