@@ -21,10 +21,97 @@ The most recent run will have the largest run number on the micro SD card.
 \textbf{Do not have USB power and 5V from the ECU plugged in at the same time!}
 Doing so may risk power flowing back into the USB port.
 This is because VUSB and VCC on the Teensy boards are connected to each other.
+
+\textbf{Please note that it takes a large amount of force to plug in our connectors}.
 \section{Wiring and Pinouts}
 \subsection{Main Board}
 \subsection{Wheel Boards}
+\subsection{Wire Pinouts}
+Serial (VBAT)
+
+\begin{tabular}{|c|c|c|c|}
+\hline
+Red & Black & Blue & Yellow \\
+\hline
+1 & 2 & 3 & 4 \\
+\hline
+VIN & GND & TX & RX \\
+\hline
+\end{tabular}
+\vspace{1em}
+
+\noindent Serial (3.3V)
+
+\begin{tabular}{|c|c|c|c|}
+\hline
+Red & Black & Blue & Yellow \\
+    \hline
+1 & 2 & 3 & 4 \\
+    \hline
+3.3V & GND & TX & RX \\
+    \hline
+\end{tabular}
+\vspace{1em}
+
+\noindent i2C
+
+\begin{tabular}{|c|c|c|c|}
+\hline
+Red & Black & Blue & Yellow \\
+\hline
+1 & 2 & 3 & 4 \\
+\hline
+3.3V & GND & SCL & SDA\\
+\hline
+\end{tabular}
+\vspace{1em}
+
+\noindent Analog
+
+\begin{tabular}{|c|c|c|c|}
+    \hline
+    Red & Black & Blue \\
+    \hline
+    1 & 2 & 3 \\
+    \hline
+    3.3V & GND & Analog \\
+    \hline
+\end{tabular}
+\vspace{1em}
+
+\noindent Power
+
+\begin{tabular}{|c|c|}
+\hline
+Red & Black \\
+\hline
+1 & 2 \\
+\hline
+VCC & GND \\
+\hline
+\end{tabular}
+\vspace{1em}
+
+\noindent CAN
+
+\begin{tabular}{|c|c|}
+    \hline
+    Red & Black \\
+    \hline
+    1 & 2 \\
+    \hline
+    CANL & CANH \\
+    \hline
+\end{tabular}
 \section{Software}
 \section{Packing List}
+In the DAQ Toolbox:
+\begin{itemize}
+    \item Scissors
+    \item Duct Tape
+    \item Electrical Tape
+    \item Voltimeter
+    \item Micro USB Cable
+\end{itemize}
 \section{Meme}
 \end{document}

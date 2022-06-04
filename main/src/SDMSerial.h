@@ -31,6 +31,8 @@ class SDMSerial {
     // will probably slow down code execution
     void status();
 
+    void flush();
+
     std::pair<SDMSerial::PacketType, String> parseMessage(String message);
 
 

@@ -32,7 +32,9 @@
 #include <FlexCAN_T4.h>
 #include "Logger.h"
 #include "LinearPot.h"
+#include "Accelerometer.h"
 #include "SDMSerial.h"
+#include "CAN.h"
 #define USING_MAKEFILE
 
 
@@ -44,23 +46,29 @@ extern "C" int main(void)
 	Logger logger;
 	logger.initializeFile("test-owo", {"i", "owo"});
 	int i = 0;
+	canSetup();
+	Accelerometer accelerometer;
+	accelerometer.set(Accelerometer::Axis::X, A14, 0.0, 1.0);
+	accelerometer.set(Accelerometer::Axis::Y, A15, 0.0, 1.0);
+	accelerometer.set(Accelerometer::Axis::Z, A16, 0.0, 1.0);
+	LinearPot frontRight;
+	LinearPot rearLeft;
+	frontRight.initialize(A10, 0.00210396);
+	rearLeft.initialize(A11, 0.00210396);
 	while (1) {
 		comm.onLoop();
-		
+		Can0.events();
+		Serial.println(accelerometer.toString());
+		// serial data
 		std::pair<bool, std::vector<int>> status = comm.isMessageReady();
 		if(status.first){
 			for(auto p : status.second){
 				Serial.print(comm.getMessage(p));
 			}
 		}
-		else{
+		else{ // no packet recieved
 		}
 
-		// logger missing data test
-		i++;
-		logger.addData("test-owo", "i", i);
-		if(i % 20 == 0)
-			logger.addData("test-owo", "owo", i);
 		logger.writeRow("test-owo");
 		delay(5);
 	}

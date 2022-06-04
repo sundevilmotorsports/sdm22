@@ -132,3 +132,25 @@ String SDMSerial::getMessage(int port){
     buffers[port] = "";
     return message;
 }
+
+void SDMSerial::status(){
+
+}
+
+void SDMSerial::flush(){
+    for(auto& p : ports){
+        switch(p){
+            case 1:
+            Serial1.flush();
+            break;
+            case 2:
+            Serial2.flush();
+            break;
+            case 3:
+            Serial3.flush();
+            break;
+            default:
+            break;
+        }
+    }
+}

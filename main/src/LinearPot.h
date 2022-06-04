@@ -6,14 +6,14 @@ class LinearPot : public Sensor {
     public:
     LinearPot(); // TODO
     void initialize(const int pin, float scale);
-    void calibrate();
+    int calibrate(int samples = 500);
     void reset();
     float get();
     int getRaw();
     String toString();
 
     protected:
-    const int pin;
+    int pin;
     float avg;
     float scale;
 };
