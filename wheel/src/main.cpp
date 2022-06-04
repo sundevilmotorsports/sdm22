@@ -31,21 +31,31 @@
 #include <Arduino.h>
 #include "HallEffect.h"
 #include "SDMSerial.h"
-#define USING_MAKEFILE 0
+#include "LinearPot.h"
+
+#define USING_MAKEFILE 1
 extern "C" int main(void)
 {
 #ifdef USING_MAKEFILE
-
 	pinMode(13, OUTPUT);
-	HallEffect he(A9);
+	HallEffect he(A6);
 	he.calibrate();
+	LinearPot pot;
+	pot.initialize(A7, 0.00210396);
 	SDMSerial comm({0,1}, false);
-
+	int speed = 0;
 	while (1) {
-		//comm.onLoop();
+		digitalWriteFast(13, HIGH);
+		comm.onLoop();
 		he.onLoop();
-		float speed = he.getSpeed();
-		comm.send(1, SDMSerial::PacketType::DATA, String(speed, 2));
+		//float speed = he.getSpeed();
+		float shockTravel = pot.get();
+		String data = String(speed) + "," + String(shockTravel, 2);
+		comm.send(1, SDMSerial::PacketType::DATA, data);
+		Serial.println(data);
+		//comm.flush();
+		//Serial.println(data);
+		speed++;
 		delay(50);
 	}
 

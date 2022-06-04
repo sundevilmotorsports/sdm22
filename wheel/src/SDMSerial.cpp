@@ -149,6 +149,9 @@ void SDMSerial::flush(){
             case 3:
             Serial3.flush();
             break;
+            case 5:
+            Serial5.flush();
+            break;
             default:
             break;
         }

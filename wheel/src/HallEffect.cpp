@@ -40,17 +40,10 @@ void HallEffect::onLoop(){
     }
     else if(diff < 4){
         justPassed = false;
-        // the code below is experimental for improving accuracy of speed measurement
-        uint32_t current = millis();
-        float dt = (float) (current - timestamp); // in ms
-        dt /= 1000; // convert dt to seconds
-
-        // meters per second 
-        speed = wheelCirc/ dt;
     }
 
-    if(justPassed) digitalWriteFast(13, HIGH);
-    else digitalWriteFast(13, LOW);
+    //if(justPassed) digitalWriteFast(13, HIGH);
+    //else digitalWriteFast(13, LOW);
 }
 
 float HallEffect::get(){

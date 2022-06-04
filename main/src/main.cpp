@@ -29,14 +29,38 @@
  */
 
 #include <Arduino.h>
-#include <FlexCAN_T4.h>
 #include "Logger.h"
 #include "LinearPot.h"
 #include "Accelerometer.h"
 #include "SDMSerial.h"
-#include "CAN.h"
-#define USING_MAKEFILE
+#include <FlexCAN_T4.h>
 
+
+#define USING_MAKEFILE
+FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_16> Can0;
+
+void canSniff(const CAN_message_t &msg) {
+  Serial.print("MB "); Serial.print(msg.mb);
+  Serial.print("  OVERRUN: "); Serial.print(msg.flags.overrun);
+  Serial.print("  LEN: "); Serial.print(msg.len);
+  Serial.print(" EXT: "); Serial.print(msg.flags.extended);
+  Serial.print(" TS: "); Serial.print(msg.timestamp);
+  Serial.print(" ID: "); Serial.print(msg.id, HEX);
+  Serial.print(" Buffer: ");
+  for ( uint8_t i = 0; i < msg.len; i++ ) {
+    Serial.print(msg.buf[i], HEX); Serial.print(" ");
+  } Serial.println();
+}
+
+void canSetup(){
+  Can0.begin();
+  Can0.setBaudRate(1000000); // 1 mega bit /s
+  Can0.onReceive(canSniff);
+}
+
+void canEvents(){
+    Can0.events();
+}
 
 extern "C" int main(void)
 {
@@ -44,32 +68,39 @@ extern "C" int main(void)
 	pinMode(13, OUTPUT);
 	SDMSerial comm({0,1}, true);
 	Logger logger;
-	logger.initializeFile("test-owo", {"i", "owo"});
+	//logger.initializeFile("test-owo", {"i", "owo"});
+	logger.initializeFile("data",
+	{
+		"acceleration X (g)", "acceleration Y (g)", "acceleration Z (g)", "latitude", "longitude", "gpsVelocity (knots)",
+		"FL wheel speed (m/s)", "RR wheel speed (m/s)", "FL shock travel (in)", "RR shock travel (in)"
+	});
 	int i = 0;
 	canSetup();
 	Accelerometer accelerometer;
-	accelerometer.set(Accelerometer::Axis::X, A14, 0.0, 1.0);
-	accelerometer.set(Accelerometer::Axis::Y, A15, 0.0, 1.0);
-	accelerometer.set(Accelerometer::Axis::Z, A16, 0.0, 1.0);
+	accelerometer.set(Accelerometer::Axis::X, A14, 0.0, 0.55);
+	accelerometer.set(Accelerometer::Axis::Y, A15, 0.0, 0.55);
+	accelerometer.set(Accelerometer::Axis::Z, A16, 0.0, 0.55);
 	LinearPot frontRight;
 	LinearPot rearLeft;
 	frontRight.initialize(A10, 0.00210396);
 	rearLeft.initialize(A11, 0.00210396);
+	
 	while (1) {
+		digitalWriteFast(13, HIGH);
 		comm.onLoop();
-		Can0.events();
-		Serial.println(accelerometer.toString());
+		//canEvents();
+		//Serial.println(accelerometer.toString());
 		// serial data
 		std::pair<bool, std::vector<int>> status = comm.isMessageReady();
 		if(status.first){
 			for(auto p : status.second){
-				Serial.print(comm.getMessage(p));
+				Serial.println(comm.getMessage(p));
 			}
 		}
 		else{ // no packet recieved
 		}
 
-		logger.writeRow("test-owo");
+		//logger.writeRow("test-owo");
 		delay(5);
 	}
 
