@@ -80,10 +80,6 @@ extern "C" int main(void)
 	accelerometer.set(Accelerometer::Axis::X, A14, 0.0, 0.55);
 	accelerometer.set(Accelerometer::Axis::Y, A15, 0.0, 0.55);
 	accelerometer.set(Accelerometer::Axis::Z, A16, 0.0, 0.55);
-	LinearPot frontRight;
-	LinearPot rearLeft;
-	frontRight.initialize(A10, 0.00210396);
-	rearLeft.initialize(A11, 0.00210396);
 	
 	while (1) {
 		digitalWriteFast(13, HIGH);

@@ -41,9 +41,9 @@ extern "C" int main(void)
 	HallEffect he(A6);
 	he.calibrate();
 	LinearPot pot;
-	pot.initialize(A7, 0.00210396);
+	pot.initialize(A7, 0.00244379);
 	SDMSerial comm({0,1}, false);
-	int speed = 0;
+	int speed = 1000;
 	while (1) {
 		digitalWriteFast(13, HIGH);
 		comm.onLoop();
@@ -52,11 +52,12 @@ extern "C" int main(void)
 		float shockTravel = pot.get();
 		String data = String(speed) + "," + String(shockTravel, 2);
 		comm.send(1, SDMSerial::PacketType::DATA, data);
-		Serial.println(data);
-		//comm.flush();
+		//Serial.println(data);
+		comm.flush();
 		//Serial.println(data);
 		speed++;
-		delay(50);
+		if(speed == 9999) speed = 1000;
+		delay(65);
 	}
 
 
