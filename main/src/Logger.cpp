@@ -52,6 +52,40 @@ void Logger::initializeFile(String filename, std::vector<String> columns){
     files.insert({sdmFile.name, sdmFile});
 }
 
+void Logger::initializeLogFile(String filename){
+    File file = SD.open(path + filename + ".log", FILE_WRITE);
+    if(file){
+        String line = String(millis() / 1000.0, 2) + String(": [STA] Initializing log file");
+        file.println(line)
+    }
+}
+
+bool Logger::log(String filename, LogLevel level, String topic, String message){
+    File file = SD.open(path + filename + ".log", FILE_WRITE);
+    if(file){
+        float timestamp = millis() / 1000.0;
+        String type = "";
+        switch(level){
+            case LogLevel::Status:
+            type = "[STA]";
+            break;
+            case LogLevel::Warning:
+            type = "[WRN]";
+            break;
+            case LogLevel::Error:
+            type = "[ERR]";
+            break;
+            default:
+            type = "[NTP]";
+            break;
+        }
+        String line = String(timestamp, 2) + " " + type + topic + ": " + message;
+        file.println(line);
+        return true;
+    }
+    return false;
+}
+
 bool Logger::addData(String filename, String column, float data){
     String key = path + filename + ".csv";
     auto pair = files[key].columns.find(column);

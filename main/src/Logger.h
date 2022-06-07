@@ -25,6 +25,12 @@ typedef struct SDMFile_s_t {
     std::vector<float> previousRow;
 } SDMFile;
 
+enum class LogLevel {
+    Status,
+    Warning,
+    Error
+};
+
 class Logger {
     public:
     Logger();
@@ -33,7 +39,14 @@ class Logger {
     void setup();
 
     // creates a .csv file and SDMFile object with desired columns
+    // TODO: change this to initializePlotFile
     void initializeFile(String filename, std::vector<String> columns);
+
+    // creates a .log file where we can log messages
+    void initializeLogFile(String filename);
+
+    // add a log message
+    bool log(String filename, LogLevel level, String topic, String message);
 
     // adds a data entry to filename's column
     // filename: name of the file, doesnt need to be the complete path
