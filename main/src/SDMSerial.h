@@ -33,7 +33,7 @@ class SDMSerial {
 
     void flush();
 
-    std::pair<SDMSerial::PacketType, String> parseMessage(String message);
+    std::pair<SDMSerial::PacketType, std::vector<String>> parseMessage(String message);
 
 
     protected:

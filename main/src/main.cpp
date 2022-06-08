@@ -38,18 +38,25 @@
 
 #define USING_MAKEFILE
 FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_16> Can0;
+Logger logger;
+
+#define GPSSerial Serial8
+Adafruit_GPS GPS(&GPSSerial);
+#define GPSECHO false
 
 void canSniff(const CAN_message_t &msg) {
-  Serial.print("MB "); Serial.print(msg.mb);
-  Serial.print("  OVERRUN: "); Serial.print(msg.flags.overrun);
-  Serial.print("  LEN: "); Serial.print(msg.len);
-  Serial.print(" EXT: "); Serial.print(msg.flags.extended);
-  Serial.print(" TS: "); Serial.print(msg.timestamp);
-  Serial.print(" ID: "); Serial.print(msg.id, HEX);
-  Serial.print(" Buffer: ");
-  for ( uint8_t i = 0; i < msg.len; i++ ) {
-    Serial.print(msg.buf[i], HEX); Serial.print(" ");
-  } Serial.println();
+	String message = "";
+	message += "MB " + String(msg.mb) + "\t";
+	message += "OVERRUN: " + String(msg.flags.overrun) + "\t";
+	message += "LEN: " + String(msg.len) + "\t";
+	message += "EXT: " + String(msg.flags.extended) + "\t";
+	message += "TS: " + String(msg.timestamp) + "\t";
+	message += "ID: " + String(msg.id, HEX) + "\t";
+	message += "Buffer: ";
+	for ( uint8_t i = 0; i < msg.len; i++ ) {
+		message += String(msg.buf[i], HEX) + " ";
+	}
+	logger.log("CAN", LogLevel::Status, "Rec'd", message);
 }
 
 void canSetup(){
@@ -66,12 +73,14 @@ extern "C" int main(void)
 {
 #ifdef USING_MAKEFILE
 	pinMode(13, OUTPUT);
-	SDMSerial comm({0,1}, true);
-	Logger logger;
-	//logger.initializeFile("test-owo", {"i", "owo"});
+	SDMSerial comm({0,1,2}, true);
+	
+	logger.initializeLogFile("serial");
+	logger.initializeLogFile("CAN");
+	logger.initializeLogFile("GPS");
 	logger.initializeFile("data",
 	{
-		"acceleration X (g)", "acceleration Y (g)", "acceleration Z (g)", "latitude", "longitude", "gpsVelocity (knots)",
+		"acceleration X (g)", "acceleration Y (g)", "acceleration Z (g)", "latitude", "longitude", "GPS fix",
 		"FL wheel speed (m/s)", "RR wheel speed (m/s)", "FL shock travel (in)", "RR shock travel (in)"
 	});
 	int i = 0;
@@ -80,23 +89,86 @@ extern "C" int main(void)
 	accelerometer.set(Accelerometer::Axis::X, A14, 0.0, 0.55);
 	accelerometer.set(Accelerometer::Axis::Y, A15, 0.0, 0.55);
 	accelerometer.set(Accelerometer::Axis::Z, A16, 0.0, 0.55);
+
+	GPS.begin(9600);
+	GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
+	GPS.sendCommand(PMTK_SET_NMEA_UPDATE_10HZ);
+	GPS.sendCommand(PGCMD_ANTENNA);
+	delay(1000);
 	
 	while (1) {
 		digitalWriteFast(13, HIGH);
 		comm.onLoop();
-		//canEvents();
+
+		// CAN stuff
+		canEvents();
+
+		// accelerometer
+		logger.addData("data", "acceleration X (g)", accelerometer.calculateAcceleration(Accelerometer::Axis::X));
+		logger.addData("data", "acceleration Y (g)", accelerometer.calculateAcceleration(Accelerometer::Axis::Y));
+		logger.addData("data", "acceleration Z (g)", accelerometer.calculateAcceleration(Accelerometer::Axis::Z));
 		//Serial.println(accelerometer.toString());
+
+		// GPS
+		GPS.read();
+		bool okGPS = true;
+		if(GPS.newNMEAreceived()){
+			logger.log("GPS", LogLevel::Status, "NMEA", GPS.lastNMEA());
+			if(!GPS.parse(GPS.lastNMEA())){
+				logger.log("GPS", LogLevel::Error, "NMEA", "Couldn't parse");
+				okGPS = false;
+			}
+			else{
+				logger.addData("data", "GPS fix", (float) ((int) GPS.fix)); // :clown:
+				logger.log("GPS", LogLevel::Status, "FixQuality", String((int) GPS.fixquality)); // :clown:
+			}
+		}
+
+		if(okGPS && GPS.fix){
+			logger.addData("data", "latitude", GPS.latitude);
+			logger.addData("data", "longitude", GPS.longitude);
+		}
+
+
 		// serial data
 		std::pair<bool, std::vector<int>> status = comm.isMessageReady();
 		if(status.first){
+			// check each port with a ready message
 			for(auto p : status.second){
-				Serial.println(comm.getMessage(p));
+				// get message
+				String msg = comm.getMessage(p);
+				logger.log("serial", LogLevel::Status, "Rec'd", msg);
+
+				// parse message
+				std::vector<float> data;
+				std::pair<SDMSerial::PacketType, std::vector<String>> parsed = comm.parseMessage(msg);
+				if(parsed.first != SDMSerial::PacketType::DATA){
+					continue;
+				}
+				for(auto& s : parsed.second){
+					data.emplace_back(s.toFloat());
+				}
+				// if we dont have pot and he data, dont bother assigning
+				if(data.size() != 2){
+					continue;
+				}
+
+				// assign data
+				if(p == 1){ // left front
+					logger.addData("data", "FL wheel speed (m/s)", data[0]);
+					logger.addData("data", "FL shock travel (in)", data[1]);
+				}
+				else if(p == 2){ // right rear
+					logger.addData("data", "RR wheel speed (m/s)", data[0]);
+					logger.addData("data", "RR shock travel (in)", data[1]);
+				}
 			}
-		}
-		else{ // no packet recieved
+		} // end if packet recieved
+		else{
+			// no packet recieved
 		}
 
-		//logger.writeRow("test-owo");
+		logger.writeRow("data");
 		delay(5);
 	}
 

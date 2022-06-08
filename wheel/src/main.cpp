@@ -43,20 +43,20 @@ extern "C" int main(void)
 	LinearPot pot;
 	pot.initialize(A7, 0.00244379);
 	SDMSerial comm({0,1}, false);
-	int speed = 1000;
+
 	while (1) {
 		digitalWriteFast(13, HIGH);
 		comm.onLoop();
+
+		// get data
 		he.onLoop();
-		//float speed = he.getSpeed();
+		float speed = he.getSpeed();
 		float shockTravel = pot.get();
-		String data = String(speed) + "," + String(shockTravel, 2);
+
+		// send data
+		String data = String(speed, 1) + "," + String(shockTravel, 2);
 		comm.send(1, SDMSerial::PacketType::DATA, data);
-		//Serial.println(data);
 		comm.flush();
-		//Serial.println(data);
-		speed++;
-		if(speed == 9999) speed = 1000;
 		delay(65);
 	}
 

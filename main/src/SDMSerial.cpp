@@ -157,3 +157,59 @@ void SDMSerial::flush(){
         }
     }
 }
+
+std::pair<SDMSerial::PacketType, std::vector<String>> SDMSerial::parseMessage(String message){
+    std::pair<SDMSerial::PacketType, std::vector<float>> output;
+    bool ok = true, typeDetermined = false;
+    String buffer = "";
+    for(int i = 0; i < message.length(); i++){
+        // check for some format errors
+        if((i == 0 && message[i] != '(') || (i == message.length()-1 && message[i] != ')')){
+            ok = false;
+            break;
+        }
+
+        // determine type
+        if(i == 1){
+            switch(message[i]){
+                case 'i':
+                output.first = SDMSerial::PacketType::INIT;
+                break;
+                case 'e':
+                output.first = SDMSerial::PacketType::ERRO;
+                break;
+                case 'd':
+                output.first = SDMSerial::PacketType::DATA;
+                break;
+                default:
+                output.first = SDMSerial::PacketType::ERRO;
+                break;
+            }
+            continue;
+        } // end if i == 1
+
+        if(i == 2 && message[i] != ','){
+            ok = false;
+            break;
+        }
+        else if(i == 2 && message[i] == ','){
+            continue;
+        }
+
+        // deal with parsing
+        if(message[i] == ',' || message[i] == ')'){
+            output.second.emplace_back(buffer);
+            buffer = "";
+        }
+        else{
+            buffer += message[i];
+        }
+    } // end for c : message
+
+    // error handling
+    if(!ok){
+        output.first = SDMSerial::PacketType::ERRO;
+        output.second.clear();
+    }
+    return output;
+}
