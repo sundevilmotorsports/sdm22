@@ -53,15 +53,18 @@ void Logger::initializeFile(String filename, std::vector<String> columns){
 }
 
 void Logger::initializeLogFile(String filename){
-    File file = SD.open(path + filename + ".log", FILE_WRITE);
+    String fullpath = path + filename + ".log";
+    File file = SD.open(fullpath.c_str(), FILE_WRITE);
     if(file){
         String line = String(millis() / 1000.0, 2) + String(": [STA] Initializing log file");
-        file.println(line)
+        file.println(line);
     }
+    file.close();
 }
 
 bool Logger::log(String filename, LogLevel level, String topic, String message){
-    File file = SD.open(path + filename + ".log", FILE_WRITE);
+    String fullpath = path + filename + ".log";
+    File file = SD.open(fullpath.c_str(), FILE_WRITE);
     if(file){
         float timestamp = millis() / 1000.0;
         String type = "";
@@ -81,8 +84,12 @@ bool Logger::log(String filename, LogLevel level, String topic, String message){
         }
         String line = String(timestamp, 2) + " " + type + topic + ": " + message;
         file.println(line);
+        file.close();
+
         return true;
     }
+    file.close();
+
     return false;
 }
 

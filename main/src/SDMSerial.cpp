@@ -21,7 +21,6 @@ SDMSerial::SDMSerial(std::vector<int> ports, bool isServer){
             Serial.begin(9600);
             break;
         }
- 
     }
 }
 
@@ -114,7 +113,7 @@ bool SDMSerial::send(int port, SDMSerial::PacketType type, String message){
 std::pair<bool, std::vector<int>> SDMSerial::isMessageReady(){
     bool isReady = false;
     std::vector<int> readyPorts;
-    for(int i = 0; i < flags.size(); i++){
+    for(size_t i = 0; i < flags.size(); i++){
         if(flags[i]){
             isReady = true;
             readyPorts.emplace_back(i);
@@ -159,10 +158,10 @@ void SDMSerial::flush(){
 }
 
 std::pair<SDMSerial::PacketType, std::vector<String>> SDMSerial::parseMessage(String message){
-    std::pair<SDMSerial::PacketType, std::vector<float>> output;
-    bool ok = true, typeDetermined = false;
+    std::pair<SDMSerial::PacketType, std::vector<String>> output;
+    bool ok = true;
     String buffer = "";
-    for(int i = 0; i < message.length(); i++){
+    for(size_t i = 0; i < message.length(); i++){
         // check for some format errors
         if((i == 0 && message[i] != '(') || (i == message.length()-1 && message[i] != ')')){
             ok = false;

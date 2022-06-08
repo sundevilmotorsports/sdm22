@@ -57,7 +57,7 @@ extern "C" int main(void)
 		String data = String(speed, 1) + "," + String(shockTravel, 2);
 		comm.send(1, SDMSerial::PacketType::DATA, data);
 		comm.flush();
-		delay(65);
+		delay(75);
 	}
 
 

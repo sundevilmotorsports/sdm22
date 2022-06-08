@@ -40,10 +40,10 @@ class Accelerometer : public Sensor {
     float getZ();
     String toString();
 
-
+    // TODO: this should be protected
+    float calculateAcceleration(Axis axis);
 
     protected:
-    float calculateAcceleration(Axis axis);
     // pins
     // tuning constants
     // biases

@@ -30,50 +30,31 @@
 
 #include <Arduino.h>
 #include "Logger.h"
-#include "LinearPot.h"
 #include "Accelerometer.h"
 #include "SDMSerial.h"
 #include <FlexCAN_T4.h>
+#include <Adafruit_GPS.h>
 
 
 #define USING_MAKEFILE
 FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_16> Can0;
-Logger logger;
+
 
 #define GPSSerial Serial8
-Adafruit_GPS GPS(&GPSSerial);
 #define GPSECHO false
 
-void canSniff(const CAN_message_t &msg) {
-	String message = "";
-	message += "MB " + String(msg.mb) + "\t";
-	message += "OVERRUN: " + String(msg.flags.overrun) + "\t";
-	message += "LEN: " + String(msg.len) + "\t";
-	message += "EXT: " + String(msg.flags.extended) + "\t";
-	message += "TS: " + String(msg.timestamp) + "\t";
-	message += "ID: " + String(msg.id, HEX) + "\t";
-	message += "Buffer: ";
-	for ( uint8_t i = 0; i < msg.len; i++ ) {
-		message += String(msg.buf[i], HEX) + " ";
-	}
-	logger.log("CAN", LogLevel::Status, "Rec'd", message);
-}
+void canSniff(const CAN_message_t &msg);
+void canSetup();
+void canEvents();
 
-void canSetup(){
-  Can0.begin();
-  Can0.setBaudRate(1000000); // 1 mega bit /s
-  Can0.onReceive(canSniff);
-}
-
-void canEvents(){
-    Can0.events();
-}
 
 extern "C" int main(void)
 {
 #ifdef USING_MAKEFILE
 	pinMode(13, OUTPUT);
 	SDMSerial comm({0,1,2}, true);
+	Logger logger;
+	Adafruit_GPS GPS(&GPSSerial);
 	
 	logger.initializeLogFile("serial");
 	logger.initializeLogFile("CAN");
@@ -107,9 +88,9 @@ extern "C" int main(void)
 		logger.addData("data", "acceleration X (g)", accelerometer.calculateAcceleration(Accelerometer::Axis::X));
 		logger.addData("data", "acceleration Y (g)", accelerometer.calculateAcceleration(Accelerometer::Axis::Y));
 		logger.addData("data", "acceleration Z (g)", accelerometer.calculateAcceleration(Accelerometer::Axis::Z));
-		//Serial.println(accelerometer.toString());
 
 		// GPS
+		
 		GPS.read();
 		bool okGPS = true;
 		if(GPS.newNMEAreceived()){
@@ -143,6 +124,7 @@ extern "C" int main(void)
 				std::vector<float> data;
 				std::pair<SDMSerial::PacketType, std::vector<String>> parsed = comm.parseMessage(msg);
 				if(parsed.first != SDMSerial::PacketType::DATA){
+					logger.log("serial", LogLevel::Error, "not type data", msg);
 					continue;
 				}
 				for(auto& s : parsed.second){
@@ -150,6 +132,7 @@ extern "C" int main(void)
 				}
 				// if we dont have pot and he data, dont bother assigning
 				if(data.size() != 2){
+				logger.log("serial", LogLevel::Error, "couldn't parse", "");
 					continue;
 				}
 
@@ -183,3 +166,29 @@ extern "C" int main(void)
 #endif
 }
 
+
+
+void canSniff(const CAN_message_t &msg) {
+	String message = "";
+	message += "MB " + String(msg.mb) + "\t";
+	message += "OVERRUN: " + String(msg.flags.overrun) + "\t";
+	message += "LEN: " + String(msg.len) + "\t";
+	message += "EXT: " + String(msg.flags.extended) + "\t";
+	message += "TS: " + String(msg.timestamp) + "\t";
+	message += "ID: " + String(msg.id, HEX) + "\t";
+	message += "Buffer: ";
+	for ( uint8_t i = 0; i < msg.len; i++ ) {
+		message += String(msg.buf[i], HEX) + " ";
+	}
+	//logger.log("CAN", LogLevel::Status, "Rec'd", message);
+}
+
+void canSetup(){
+  Can0.begin();
+  Can0.setBaudRate(1000000); // 1 mega bit /s
+  Can0.onReceive(canSniff);
+}
+
+void canEvents(){
+    Can0.events();
+}
