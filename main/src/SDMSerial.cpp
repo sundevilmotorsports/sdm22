@@ -29,7 +29,7 @@ void SDMSerial::onLoop(){
         // TODO: the rest of the ports
         switch(p){
             case 1:{
-                if(Serial1.available()){
+                if(Serial1.available() && !flags[p]){
                     byte incoming = Serial1.read();
                     buffers[p] += String((char) incoming);
                     // end of packet

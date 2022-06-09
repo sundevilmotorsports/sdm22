@@ -39,13 +39,12 @@ extern "C" int main(void)
 #ifdef USING_MAKEFILE
 	pinMode(13, OUTPUT);
 	HallEffect he(A6);
-	he.calibrate();
 	LinearPot pot;
 	pot.initialize(A7, 0.00244379);
 	SDMSerial comm({0,1}, false);
-
+	uint32_t timestamp = millis();
 	while (1) {
-		digitalWriteFast(13, HIGH);
+		//digitalWriteFast(13, HIGH);
 		comm.onLoop();
 
 		// get data
@@ -54,10 +53,15 @@ extern "C" int main(void)
 		float shockTravel = pot.get();
 
 		// send data
-		String data = String(speed, 1) + "," + String(shockTravel, 2);
-		comm.send(1, SDMSerial::PacketType::DATA, data);
-		comm.flush();
-		delay(75);
+		uint32_t current = millis();
+		if(current - timestamp > 125){
+			String data = String(speed, 1) + "," + String(shockTravel, 2);
+			comm.send(1, SDMSerial::PacketType::DATA, data);
+			comm.flush();
+			timestamp = current;
+		}
+
+		delay(5);
 	}
 
 

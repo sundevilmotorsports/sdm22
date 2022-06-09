@@ -90,13 +90,12 @@ extern "C" int main(void)
 		logger.addData("data", "acceleration Z (g)", accelerometer.calculateAcceleration(Accelerometer::Axis::Z));
 
 		// GPS
-		
 		GPS.read();
 		bool okGPS = true;
 		if(GPS.newNMEAreceived()){
 			logger.log("GPS", LogLevel::Status, "NMEA", GPS.lastNMEA());
 			if(!GPS.parse(GPS.lastNMEA())){
-				logger.log("GPS", LogLevel::Error, "NMEA", "Couldn't parse");
+				//logger.log("GPS", LogLevel::Error, "NMEA", "Couldn't parse");
 				okGPS = false;
 			}
 			else{
@@ -118,7 +117,6 @@ extern "C" int main(void)
 			for(auto p : status.second){
 				// get message
 				String msg = comm.getMessage(p);
-				logger.log("serial", LogLevel::Status, "Rec'd", msg);
 
 				// parse message
 				std::vector<float> data;
@@ -132,16 +130,18 @@ extern "C" int main(void)
 				}
 				// if we dont have pot and he data, dont bother assigning
 				if(data.size() != 2){
-				logger.log("serial", LogLevel::Error, "couldn't parse", "");
+				logger.log("serial", LogLevel::Error, "couldn't parse", msg);
 					continue;
 				}
 
 				// assign data
 				if(p == 1){ // left front
+					logger.log("serial", LogLevel::Status, "Rec'd P1", msg);
 					logger.addData("data", "FL wheel speed (m/s)", data[0]);
 					logger.addData("data", "FL shock travel (in)", data[1]);
 				}
 				else if(p == 2){ // right rear
+					logger.log("serial", LogLevel::Status, "Rec'd P2", msg);
 					logger.addData("data", "RR wheel speed (m/s)", data[0]);
 					logger.addData("data", "RR shock travel (in)", data[1]);
 				}

@@ -92,19 +92,20 @@ bool SDMSerial::send(int port, SDMSerial::PacketType type, String message){
 
     switch(port){
         case 1:{
-            Serial1.println(outgoing);
+            Serial1.print(outgoing);
+            Serial1.flush();
             break;
         }
         case 2:{
-            Serial2.println(outgoing);
+            Serial2.print(outgoing);
             break;
         }
         case 5:{
-            Serial5.println(outgoing);
+            Serial5.print(outgoing);
             break;
         }
         default:{
-            Serial.println(outgoing);
+            Serial.print(outgoing);
             break;
         }
     }
