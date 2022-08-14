@@ -27,23 +27,25 @@ void HallEffect::reset(){
 
 void HallEffect::onLoop(){
     
-    int diff = getRawDiff();
-    if(diff >= 6 && !justPassed){
+    //Serial.println(toString());
+    if(getRaw() < 8 && !justPassed){
+        counts++;
         justPassed = true;
         uint32_t current = millis();
         float dt = (float) (current - timestamp); // in ms
         dt /= 1000; // convert dt to seconds
 
-        // meters per second 
-        speed = wheelCirc/ dt;
+        // meters per second
+        // we divide by 4 bc 4 magnets 
+        speed = (wheelCirc / 4.0)/ dt;
         timestamp = current;
     }
-    else if(diff < 4){
+    else if(getRaw() > 6){
         justPassed = false;
     }
 
-    //if(justPassed) digitalWriteFast(13, HIGH);
-    //else digitalWriteFast(13, LOW);
+    if(justPassed) digitalWriteFast(13, HIGH);
+    else digitalWriteFast(13, LOW);
 }
 
 float HallEffect::get(){
@@ -67,5 +69,5 @@ int HallEffect::getEncoder(){
 }
 
 String HallEffect::toString(){
-    return String(millis()/1000.0) + "," + String(pin) + "," + String(getRaw()) + "," + String(getRawDiff()) + "," + String(getSpeed());
+    return String(millis()/1000.0) + "," + String(pin) + "," + String(getRaw()) + "," + String(getRawDiff()) + "," + String(getSpeed()) + "," + String(justPassed) + "," + String(zeroVal);
 }

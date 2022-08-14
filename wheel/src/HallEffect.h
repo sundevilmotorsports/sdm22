@@ -55,7 +55,7 @@ class HallEffect : public Sensor {
 
     protected:
     // in meters
-    float wheelCirc = .376;
+    float wheelCirc = 1.28;
     int pin;
     int zeroVal = 0;
     int counts = 0;
