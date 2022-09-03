@@ -22,8 +22,17 @@ void canSniff(const CAN_message_t &msg) {
   Serial.print(" EXT: "); Serial.print(msg.flags.extended);
   Serial.print(" TS: "); Serial.print(msg.timestamp);
   Serial.print(" ID: "); Serial.print(msg.id, HEX);
+  
+  if(msg.id == 0x360){
+    // demonstration of parsing haltech RPM message
+    Serial.print(" RPM: ");
+    short data = msg.buf[1];
+    data = (msg.buf[0] << 8) | data;
+    Serial.println(data);
+    return;
+  }
   Serial.print(" Buffer: ");
-  for ( uint8_t i = 0; i < msg.len; i++ ) { // reading msg.buf backwards is an issue and results in crash
+  for ( uint8_t i = 0; i < msg.len; i++ ) {
     Serial.print(msg.buf[i], HEX); Serial.print(" "); }
   Serial.println();
 }

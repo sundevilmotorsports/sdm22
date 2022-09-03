@@ -32,12 +32,21 @@ void loop() {
   Can0.events();
 
   static uint32_t timeout = millis();
+  static uint32_t timeout2 = millis();
   if ( millis() - timeout > 200 ) {
     CAN_message_t msg;
     msg.id = random(0x1,0x7FE);
     for ( uint8_t i = 0; i < 8; i++ ) msg.buf[i] = i + 1;
     Can0.write(msg);
     timeout = millis();
+  }
+  if( millis() - timeout2 > 1000){
+    CAN_message_t msg;
+    msg.id = 0x360;
+    msg.buf[0] = 4;
+    msg.buf[1] = 132;
+    Can0.write(msg);
+    timeout2 = millis();
   }
   
 
