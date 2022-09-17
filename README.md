@@ -1,5 +1,8 @@
 # Sun Devil Motorsports DAQ Package
 This repository is currently being reorganized, please excuse the dust :)
+
+We are currently swapping to PlatformIO for our build system.
+---------
 ## About
 Teensy 4.0/4.1 code for SDM22's Data Acquisition (DAQ) Package, which consists of a main board and two wheel boards.
 
