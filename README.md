@@ -1,5 +1,5 @@
-# Sun Devil Motorsports DAQ Package
-This repository is currently being reorganized, please excuse the dust :)
+# Sun Devil Motorsports SDM-22 DAQ Package
+This repository is currently being reorganized, so please excuse the dust :)
 
 We are currently swapping to PlatformIO for our build system.
 ---------
