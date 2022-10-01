@@ -1,0 +1,6 @@
+[submodule "main-21-5/lib/sdmlib"]
+	path = main-21-5/lib/sdmlib
+	url = git@github.com:sundevilmotorsports/sdmlib.git
+[submodule "wheel-21-5/lib/sdmlib"]
+	path = wheel-21-5/lib/sdmlib
+	url = git@github.com:sundevilmotorsports/sdmlib.git
