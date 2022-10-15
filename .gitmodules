@@ -7,3 +7,6 @@
 [submodule "wheel-21-5/lib/SF_MLX90614"]
 	path = wheel-21-5/lib/SF_MLX90614
 	url = https://github.com/sparkfun/SparkFun_MLX90614_Arduino_Library.git
+[submodule "main-21-5/lib/SF_MLX90614"]
+	path = main-21-5/lib/SF_MLX90614
+	url = https://github.com/sparkfun/SparkFun_MLX90614_Arduino_Library.git
