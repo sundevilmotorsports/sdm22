@@ -4,7 +4,7 @@
 #include <HallEffect.h>
 
 
-HallEffect he(A6);
+HallEffect he(A7);
 
 void setup() {
   // put your setup code here, to run once:
@@ -15,7 +15,7 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   he.onLoop();
-  //Serial.println(he.toString());
-  Serial.println(he.getSpeed());
+  Serial.println(he.toString());
+  //Serial.println(he.getSpeed());
   delay(5);
 }

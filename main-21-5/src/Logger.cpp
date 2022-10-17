@@ -1,6 +1,10 @@
 #include "Logger.h"
 
 Logger::Logger(){
+
+}
+
+void Logger::setup(){
     SD.begin(BUILTIN_SDCARD);
 
     // get previously used run number, use incremented and then save it back into EEPROM
