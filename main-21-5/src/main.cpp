@@ -2,8 +2,12 @@
 #include <Arduino.h>
 #include <FlexCAN_T4.h>
 #include "Logger.h"
+#include <Accelerometer.h>
+
 FlexCAN_T4<CAN1, RX_SIZE_256, TX_SIZE_16> Can0;
 Logger logger;
+
+Accelerometer accelerometer;
 
 // Forward define function
 void canSniff(const CAN_message_t &msg);
@@ -14,10 +18,18 @@ void setup(void) {
   {
     "RPM", "Manifold Pressure", "Throttle Position", 
     "Fuel Pressure", "Oil Pressure", "Wideband", 
-    "Coolant Temp", "Air Temp"
+    "Coolant Temp", "Air Temp", "FL wheel speed (m/s)",
+    "X accel (g)", "Y accel (g)", "Z accel (g)"
   });
 
+  accelerometer.set(Accelerometer::Axis::X, A14, 0.0, 0.55);
+  accelerometer.set(Accelerometer::Axis::Y, A15, 0.0, 0.55);
+  accelerometer.set(Accelerometer::Axis::Z, A16, 0.0, 0.55);
+
+
+  Serial2.begin(115200);
   Serial.begin(9600); delay(400);
+
   Can0.begin();
   Can0.setBaudRate(1000000);
   Can0.setMaxMB(16);
@@ -125,22 +137,27 @@ void canSniff(const CAN_message_t &msg) {
 }
 
 void loop() {
+
+  // CAN
   Can0.events();
 
-  static uint32_t timeout = millis();
-  static uint32_t timeout2 = millis();
-  if ( millis() - timeout > 200 ) {
-    CAN_message_t msg;
-    msg.id = random(0x1,0x7FE);
-    for ( uint8_t i = 0; i < 8; i++ ) msg.buf[i] = i + 1;
-    Can0.write(msg);
-    timeout = millis();
+  // accelerometer
+  logger.addData("data", "X accel (g)", accelerometer.calculateAcceleration(Accelerometer::Axis::X));
+  logger.addData("data", "Y accel (g)", accelerometer.calculateAcceleration(Accelerometer::Axis::Y));
+  logger.addData("data", "Z accel (g)", accelerometer.calculateAcceleration(Accelerometer::Axis::Z));
+
+  Serial.println(accelerometer.toString());
+
+  // wheel speed
+  if(Serial2.available())
+  {
+    uint8_t incoming = (uint8_t) Serial2.read();
+    float speed = (float) incoming / 10.0;
+    Serial.println(speed);
+    logger.addData("data", "FL wheel speed (m/s)", speed);
   }
-  if( millis() - timeout2 > 2000) {
-    timeout2 = millis();
-    //Can0.mailboxStatus();
-  }
-  
+
+
   digitalWrite(13, HIGH);
   logger.writeRow("data");
 }
