@@ -2,7 +2,7 @@
 #include <Arduino.h>
 #include <FlexCAN_T4.h>
 #include "Logger.h"
-FlexCAN_T4<CAN1, RX_SIZE_256, TX_SIZE_16> Can0;
+FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_16> Can0;
 Logger logger;
 
 // Forward define function
@@ -135,12 +135,12 @@ void loop() {
     CAN_message_t msg;
     msg.id = random(0x1,0x7FE);
     for ( uint8_t i = 0; i < 8; i++ ) msg.buf[i] = i + 1;
-    Can0.write(msg);
+    //Can0.write(msg);
     timeout = millis();
   }
   if( millis() - timeout2 > 2000) {
     timeout2 = millis();
-    //Can0.mailboxStatus();
+    Can0.mailboxStatus();
   }
   
   digitalWrite(13, HIGH);
