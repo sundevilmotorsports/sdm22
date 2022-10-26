@@ -12,10 +12,10 @@ void Logger::setup(){
     // if runNo == 255, then we need to reset it since byte's max size is 255
     if(runNo == 255){
         runNo = 0;
-        path = "run" + String(runNo) + "/";
+        path = "run303/";
     }
     else{
-        path = "run" + String(++runNo) + "/";
+        path = "run303/";
     }
     SD.mkdir(path.c_str());
     EEPROM.write(RUN_NO_ADDR, runNo);
@@ -44,11 +44,11 @@ void Logger::initializeFile(String filename, std::vector<String> columns){
     // create csv header
     File file = SD.open(sdmFile.name.c_str(), FILE_WRITE);
     if(file){
-        file.print("timestamp (s)");
+        //file.print("timestamp (s)");
         for(auto& c : columns){
-            file.print(", " + c);
+            //file.print(", " + c);
         }
-        file.println();
+        //file.println();
         file.close();
     }
 
